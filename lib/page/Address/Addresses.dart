@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutterapp/page/Address/Widgets/Single_address.dart';
-import 'package:flutterapp/page/Address/add_new_address.dart';
+import '../Address/Widgets/Single_address.dart';
+import '../Address/add_new_address.dart';
 
 class AddressScreen extends StatefulWidget {
   const AddressScreen({Key? key}) : super(key: key);
@@ -54,21 +54,23 @@ class _AdressScreenState extends State<AddressScreen> {
                 onTap: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => const AddNewAdressScreen()),
+                    MaterialPageRoute(
+                        builder: (context) => const AddNewAdressScreen()),
                   );
                 },
                 child: Container(
                   margin: const EdgeInsets.all(5.0),
                   padding: const EdgeInsets.all(5.0),
-                  decoration: BoxDecoration(
-                  ),
+                  decoration: BoxDecoration(),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Row(
                         children: [
                           Icon(Icons.add), // Thêm biểu tượng ở đây
-                          SizedBox(width: 24), // Khoảng cách 24px giữa biểu tượng và văn bản
+                          SizedBox(
+                              width:
+                                  24), // Khoảng cách 24px giữa biểu tượng và văn bản
                           Text(
                             "Thêm địa chỉ",
                             style: TextStyle(fontWeight: FontWeight.bold),
@@ -88,9 +90,17 @@ class _AdressScreenState extends State<AddressScreen> {
                 ),
               ),
               Divider(),
-              SingleAddress(selectedAddress: false,name: 'Name: Nguyễn Văn A', phone: 'Phone: 0944312341', address: 'Trường Huflit, Quận 10, Thành phố HCM, Việt Nam'),
+              SingleAddress(
+                  selectedAddress: false,
+                  name: 'Name: Nguyễn Văn A',
+                  phone: 'Phone: 0944312341',
+                  address: 'Trường Huflit, Quận 10, Thành phố HCM, Việt Nam'),
               Divider(),
-              SingleAddress(selectedAddress: false,name: 'Name: Nguyễn Văn B', phone: 'Phone: 0911221220', address: 'Trường Huflit, Quận 10, Thành phố HCM, Việt Nam'),
+              SingleAddress(
+                  selectedAddress: false,
+                  name: 'Name: Nguyễn Văn B',
+                  phone: 'Phone: 0911221220',
+                  address: 'Trường Huflit, Quận 10, Thành phố HCM, Việt Nam'),
               Divider(),
             ],
           ),

@@ -1,6 +1,6 @@
-import '../page/Cartpage/CartAppBar.dart';
-import '../page/Cartpage/Cartitem.dart';
-import '../page/Cartpage/cartbottomBar.dart';
+import 'CartAppBar.dart';
+import 'Cartitem.dart';
+import 'cartbottomBar.dart';
 import 'package:flutter/material.dart';
 
 class Cartpage extends StatelessWidget {

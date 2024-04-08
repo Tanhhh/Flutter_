@@ -3,8 +3,8 @@ import 'package:flutter_ltdddoan/gen/assets.gen.dart';
 import 'package:flutter_ltdddoan/model/clothes.model.dart';
 import 'package:flutter_ltdddoan/page/home/widget/icon.widget.dart';
 import 'package:flutter_ltdddoan/page/home/widget/item.widget.dart';
-import '../Cartpage.dart';
-import '../SearchItem.dart';
+import '../Cart/Cartpage.dart';
+import '../search/SearchItem.dart';
 import 'menu_bar.dart';
 
 class HomePage extends StatefulWidget {

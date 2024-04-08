@@ -1,0 +1,30 @@
+name: flutter_ltdddoan
+description: "A new Flutter project."
+
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.3.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+   
+  cupertino_icons: ^1.0.6
+  badges: ^3.1.2
+  intl: ^0.19.0
+  shared_preferences: ^2.1.0
+  sidebarx: ^0.16.2
+  flutter_datetime_picker: ^1.5.1
+
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^1.0.0
+  flutter_gen_runner: ^5.3.2
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/files/
+    - assets/images/

@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "737881589777",
+    "firebase_url": "https://clothingstore-3f8ea-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "clothingstore-3f8ea",
+    "storage_bucket": "clothingstore-3f8ea.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:737881589777:android:9395517af3724f8919c9b0",
+        "android_client_info": {
+          "package_name": "com.example.flutter_ltdddoan"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBcDb7Etg7tniarRsbpyK8wA5Cnr7HiX_g"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

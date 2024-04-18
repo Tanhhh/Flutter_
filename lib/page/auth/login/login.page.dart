@@ -2,9 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter_ltdddoan/gen/assets.gen.dart';
 import 'package:flutter_ltdddoan/page/splash/widget/button.widget.dart';
 import 'package:flutter_ltdddoan/routes/routes.dart';
+import '../../../repositories/auth/login_repository.dart';
 
-class LoginPage extends StatelessWidget {
-  const LoginPage({super.key});
+class LoginPage extends StatefulWidget {
+  const LoginPage({Key? key}) : super(key: key);
+
+  @override
+  _LoginPageState createState() => _LoginPageState();
+}
+
+class _LoginPageState extends State<LoginPage> {
+  TextEditingController emailController = TextEditingController();
+  TextEditingController passwordController = TextEditingController();
+
+  bool _obscureText = true;
 
   @override
   Widget build(BuildContext context) {
@@ -92,19 +103,17 @@ class LoginPage extends StatelessWidget {
                     height: 10,
                   ),
                   TextField(
+                    controller: emailController,
                     decoration: InputDecoration(
+                      hintText: "Nhập email",
                       border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(8)),
                       prefixIcon:
                           Image.asset(Assets.images.envelopeSimple.path),
-                      suffixIcon: const Icon(
-                        Icons.error,
-                        color: Color(0xFF6342E8),
-                      ),
                     ),
                   ),
                   const SizedBox(
-                    height: 40,
+                    height: 20,
                   ),
                   const Text(
                     "Mật khẩu",
@@ -114,10 +123,32 @@ class LoginPage extends StatelessWidget {
                         fontSize: 16),
                   ),
                   TextField(
+                    controller: passwordController,
+                    obscureText: _obscureText,
                     decoration: InputDecoration(
-                        border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8)),
-                        prefixIcon: Image.asset(Assets.images.lock.path)),
+                      hintText: "Nhập mật khẩu",
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      prefixIcon: Image.asset(Assets.images.lock.path),
+                      suffixIcon: GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            // Thay đổi trạng thái ẩn/hiện mật khẩu
+                            _obscureText = !_obscureText;
+                          });
+                        },
+                        child: Icon(
+                          _obscureText
+                              ? Icons.visibility
+                              : Icons.visibility_off,
+                          color: Colors.grey,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(
+                    height: 20,
                   ),
                   Row(
                     mainAxisSize: MainAxisSize.max,
@@ -141,8 +172,8 @@ class LoginPage extends StatelessWidget {
                   ButtonWidget(
                     height: 65,
                     onTap: () {
-                      Navigator.pushNamedAndRemoveUntil(
-                          context, Routes.home, (route) => true);
+                      loginUserWithEmailAndPassword(context,
+                          emailController.text, passwordController.text);
                     },
                     title: 'Đăng nhập',
                     isFilled: true,

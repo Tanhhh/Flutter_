@@ -16,8 +16,8 @@ class Routes {
   static final routes = <String, WidgetBuilder>{
     splash: (_) => const SplashPage(),
     splash_v1: (_) => const SplashV1Page(),
-    login: (_) => const LoginPage(),
-    register: (_) => const RegisterPage(),
+    login: (_) => LoginPage(),
+    register: (_) => RegisterPage(),
     home: (_) => const HomePage(),
   };
 }

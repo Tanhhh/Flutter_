@@ -87,7 +87,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   left: 20,
                   bottom: 30,
                   child: Text(
-                    "Register".toUpperCase(),
+                    "Đăng ký".toUpperCase(),
                     style: const TextStyle(
                       color: Colors.white,
                       fontSize: 22,

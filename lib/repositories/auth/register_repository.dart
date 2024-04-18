@@ -30,8 +30,16 @@ Future<void> registerUserWithEmailAndPassword(
       throw 'Email đã được sử dụng.';
     }
 
-    // Tạo đối tượng Customer từ thông tin đăng ký
+// Tạo một tham chiếu tới một tài liệu mới trong collection 'customers'
+    DocumentReference docRef =
+        await FirebaseFirestore.instance.collection('customers').add({});
+
+// Lấy document ID của tài liệu mới được tạo
+    String documentId = docRef.id;
+
+// Tạo đối tượng Customer từ thông tin đăng ký và gán document ID vào trường customerId
     Customer newCustomer = Customer(
+      customerId: documentId,
       customerName: name,
       customerEmail: email,
       customerPassword: password,
@@ -45,10 +53,8 @@ Future<void> registerUserWithEmailAndPassword(
       customerAvatar: '',
     );
 
-    await FirebaseFirestore.instance
-        .collection('customers')
-        .doc()
-        .set(newCustomer.toMap());
+// Lưu đối tượng Customer vào Firestore
+    await docRef.set(newCustomer.toMap());
 
     print('Đăng ký thành công!');
 

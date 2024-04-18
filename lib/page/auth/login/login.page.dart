@@ -108,8 +108,10 @@ class _LoginPageState extends State<LoginPage> {
                       hintText: "Nhập email",
                       border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(8)),
-                      prefixIcon:
-                          Image.asset(Assets.images.envelopeSimple.path),
+                      prefixIcon: Image.asset(
+                        Assets.images.envelopeSimple.path,
+                        color: Color(0xFF6342E8),
+                      ),
                     ),
                   ),
                   const SizedBox(
@@ -130,7 +132,10 @@ class _LoginPageState extends State<LoginPage> {
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8),
                       ),
-                      prefixIcon: Image.asset(Assets.images.lock.path),
+                      prefixIcon: Image.asset(
+                        Assets.images.lock.path,
+                        color: Color(0xFF6342E8),
+                      ),
                       suffixIcon: GestureDetector(
                         onTap: () {
                           setState(() {

@@ -46,7 +46,8 @@ class DefaultFirebaseOptions {
     messagingSenderId: '737881589777',
     projectId: 'clothingstore-3f8ea',
     authDomain: 'clothingstore-3f8ea.firebaseapp.com',
-    databaseURL: 'https://clothingstore-3f8ea-default-rtdb.asia-southeast1.firebasedatabase.app',
+    databaseURL:
+        'https://clothingstore-3f8ea-default-rtdb.asia-southeast1.firebasedatabase.app',
     storageBucket: 'clothingstore-3f8ea.appspot.com',
     measurementId: 'G-W1GDWBB4ZN',
   );
@@ -56,7 +57,8 @@ class DefaultFirebaseOptions {
     appId: '1:737881589777:android:9395517af3724f8919c9b0',
     messagingSenderId: '737881589777',
     projectId: 'clothingstore-3f8ea',
-    databaseURL: 'https://clothingstore-3f8ea-default-rtdb.asia-southeast1.firebasedatabase.app',
+    databaseURL:
+        'https://clothingstore-3f8ea-default-rtdb.asia-southeast1.firebasedatabase.app',
     storageBucket: 'clothingstore-3f8ea.appspot.com',
   );
 
@@ -65,7 +67,8 @@ class DefaultFirebaseOptions {
     appId: '1:737881589777:ios:2c29edf75d66aa7119c9b0',
     messagingSenderId: '737881589777',
     projectId: 'clothingstore-3f8ea',
-    databaseURL: 'https://clothingstore-3f8ea-default-rtdb.asia-southeast1.firebasedatabase.app',
+    databaseURL:
+        'https://clothingstore-3f8ea-default-rtdb.asia-southeast1.firebasedatabase.app',
     storageBucket: 'clothingstore-3f8ea.appspot.com',
     iosBundleId: 'com.example.flutterLtdddoan',
   );
@@ -75,7 +78,8 @@ class DefaultFirebaseOptions {
     appId: '1:737881589777:ios:2c29edf75d66aa7119c9b0',
     messagingSenderId: '737881589777',
     projectId: 'clothingstore-3f8ea',
-    databaseURL: 'https://clothingstore-3f8ea-default-rtdb.asia-southeast1.firebasedatabase.app',
+    databaseURL:
+        'https://clothingstore-3f8ea-default-rtdb.asia-southeast1.firebasedatabase.app',
     storageBucket: 'clothingstore-3f8ea.appspot.com',
     iosBundleId: 'com.example.flutterLtdddoan',
   );
@@ -86,7 +90,8 @@ class DefaultFirebaseOptions {
     messagingSenderId: '737881589777',
     projectId: 'clothingstore-3f8ea',
     authDomain: 'clothingstore-3f8ea.firebaseapp.com',
-    databaseURL: 'https://clothingstore-3f8ea-default-rtdb.asia-southeast1.firebasedatabase.app',
+    databaseURL:
+        'https://clothingstore-3f8ea-default-rtdb.asia-southeast1.firebasedatabase.app',
     storageBucket: 'clothingstore-3f8ea.appspot.com',
     measurementId: 'G-WBW38X6VVW',
   );

@@ -21,6 +21,8 @@ Future<void> registerUserWithEmailAndPassword(
       throw 'Mật khẩu quá ngắn. Mật khẩu phải có ít nhất 6 ký tự.';
     }
 
+    email = email.toLowerCase();
+
     QuerySnapshot emailSnapshot = await FirebaseFirestore.instance
         .collection('customers')
         .where('customerEmail', isEqualTo: email)
@@ -30,14 +32,14 @@ Future<void> registerUserWithEmailAndPassword(
       throw 'Email đã được sử dụng.';
     }
 
-// Tạo một tham chiếu tới một tài liệu mới trong collection 'customers'
+    // Tạo một tham chiếu tới một tài liệu mới trong collection 'customers'
     DocumentReference docRef =
         await FirebaseFirestore.instance.collection('customers').add({});
 
-// Lấy document ID của tài liệu mới được tạo
+    // Lấy document ID của tài liệu mới được tạo
     String documentId = docRef.id;
 
-// Tạo đối tượng Customer từ thông tin đăng ký và gán document ID vào trường customerId
+    // Tạo đối tượng Customer từ thông tin đăng ký và gán document ID vào trường customerId
     Customer newCustomer = Customer(
       customerId: documentId,
       customerName: name,
@@ -53,7 +55,7 @@ Future<void> registerUserWithEmailAndPassword(
       customerAvatar: '',
     );
 
-// Lưu đối tượng Customer vào Firestore
+    // Lưu đối tượng Customer vào Firestore
     await docRef.set(newCustomer.toMap());
 
     print('Đăng ký thành công!');

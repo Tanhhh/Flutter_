@@ -81,9 +81,9 @@ class MenuBarRight extends StatelessWidget {
                 padding: EdgeInsets.only(bottom: 10),
                 child: CircleAvatar(
                   radius: 50,
-                  child: ClipOval(
-                    child: Image.asset('images/avt.png'),
-                  ),
+                  backgroundImage: currentUser.customerAvatar != ''
+                      ? AssetImage(currentUser.customerAvatar)
+                      : AssetImage('images/avt.png'),
                 ),
               ),
               decoration: BoxDecoration(

@@ -1,19 +1,22 @@
 import 'package:flutter/material.dart';
 import '../home/home.page.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:photo_view/photo_view.dart';
+import '../../repositories/customer/saveprofile_repository.dart';
+import 'package:intl/intl.dart';
+import 'upload_avt.dart';
 
-TextEditingController hoTenController =
-    TextEditingController(text: 'Lê Tuấn Anh');
-TextEditingController emailController =
-    TextEditingController(text: 'letuananh4282@gmail.com');
-TextEditingController namsinhController =
-    TextEditingController(text: '03/05/2002');
+TextEditingController hoTenController = TextEditingController();
+TextEditingController emailController = TextEditingController();
+TextEditingController namsinhController = TextEditingController();
+TextEditingController genderController = TextEditingController();
+TextEditingController avtController = TextEditingController();
 bool isHoTenEditable = false;
 bool isEmailEditable = false;
-bool isHoTenIconTapped =
-    false; // Biến để theo dõi trạng thái của biểu tượng chỉnh sửa Họ và Tên
-bool isEmailIconTapped =
-    false; // Biến để theo dõi trạng thái của biểu tượng chỉnh sửa Email
+bool isHoTenIconTapped = false;
+bool isEmailIconTapped = false;
+String formatDate(DateTime dateTime) {
+  return DateFormat('dd/MM/yyyy').format(dateTime);
+}
 
 class UserProfilePage extends StatefulWidget {
   @override
@@ -21,11 +24,10 @@ class UserProfilePage extends StatefulWidget {
 }
 
 class _ParentWidgetState extends State<UserProfilePage> {
-  String dropdownValue = 'Nam'; // Giá trị mặc định là 'Nam'
-
   @override
   void initState() {
     super.initState();
+    _fetchUserData();
     _restoreIconStates();
   }
 
@@ -70,42 +72,36 @@ class _ParentWidgetState extends State<UserProfilePage> {
                                 Navigator.pop(context);
                                 showDialog(
                                   context: context,
-                                  barrierDismissible: false,
                                   builder: (BuildContext context) {
-                                    return Dialog(
-                                      backgroundColor: Colors.black,
-                                      child: Stack(
-                                        alignment: Alignment.topRight,
-                                        children: [
-                                          Container(
-                                            width: double.infinity,
-                                            height: double.infinity,
-                                            child: Image.asset(
-                                              'images/avt.jpg',
-                                              fit: BoxFit.cover,
+                                    return GestureDetector(
+                                      onTap: () {
+                                        Navigator.of(context).pop();
+                                      },
+                                      child: Center(
+                                        child: Container(
+                                          color: Colors.black,
+                                          child: ConstrainedBox(
+                                            constraints: BoxConstraints(
+                                              maxWidth: MediaQuery.of(context)
+                                                  .size
+                                                  .width,
+                                              maxHeight: MediaQuery.of(context)
+                                                  .size
+                                                  .height,
                                             ),
-                                          ),
-                                          GestureDetector(
-                                            onTap: () {
-                                              Navigator.of(context)
-                                                  .pop(); // Đóng dialog
-                                            },
-                                            child: Container(
-                                              margin: EdgeInsets.only(
-                                                  top: 16, right: 16),
-                                              padding: EdgeInsets.all(8),
-                                              decoration: BoxDecoration(
-                                                color: Colors.black
-                                                    .withOpacity(0.5),
+                                            child: PhotoView(
+                                              imageProvider: AssetImage(
+                                                avtController.text.isEmpty
+                                                    ? 'images/avt.png'
+                                                    : avtController.text,
                                               ),
-                                              child: Text(
-                                                'X',
-                                                style: TextStyle(
-                                                    color: Colors.white),
+                                              backgroundDecoration:
+                                                  BoxDecoration(
+                                                color: Colors.black,
                                               ),
                                             ),
                                           ),
-                                        ],
+                                        ),
                                       ),
                                     );
                                   },
@@ -116,8 +112,18 @@ class _ParentWidgetState extends State<UserProfilePage> {
                               leading: Icon(Icons.upload),
                               title: Text('Upload ảnh lên'),
                               onTap: () {
-                                // Xử lý khi chọn "Upload ảnh lên"
-                                Navigator.pop(context);
+                                Navigator.pop(
+                                    context); // Đóng bottom sheet trước
+                                showDialog(
+                                  context: context,
+                                  builder: (BuildContext context) {
+                                    return Dialog(
+                                      child: ImageUploaderWidget(
+                                        onImageSelected: () {},
+                                      ),
+                                    );
+                                  },
+                                );
                               },
                             ),
                           ],
@@ -131,7 +137,9 @@ class _ParentWidgetState extends State<UserProfilePage> {
                   backgroundColor: Colors.transparent,
                   child: ClipOval(
                     child: Image.asset(
-                      'images/avt.jpg',
+                      avtController.text.isEmpty
+                          ? 'images/avt.png'
+                          : avtController.text,
                       fit: BoxFit.cover,
                     ),
                   ),
@@ -149,10 +157,9 @@ class _ParentWidgetState extends State<UserProfilePage> {
                     hoTenController.clear();
                   }
                   isHoTenEditable = !isHoTenEditable;
-                  isHoTenIconTapped =
-                      !isHoTenIconTapped; // Thay đổi trạng thái của biểu tượng
-                  _saveIconState(isHoTenIconTapped);
-                  // Đặt lại màu của biểu tượng khi thoát hoặc back ra khỏi trường nhập liệu
+                  isHoTenIconTapped = !isHoTenIconTapped;
+                  UserProfileRepository.saveIconState(isHoTenIconTapped);
+
                   if (!isHoTenEditable) {
                     isHoTenIconTapped = false;
                   }
@@ -161,24 +168,15 @@ class _ParentWidgetState extends State<UserProfilePage> {
               isIconTapped: isHoTenIconTapped,
             ),
             SizedBox(height: 20),
-            buildEditableTextField(
+            TextFormField(
               controller: emailController,
-              isEditable: isEmailEditable,
-              labelText: 'Email',
-              onTapIcon: () {
-                setState(() {
-                  if (!isEmailEditable) {
-                    emailController.clear();
-                  }
-                  isEmailEditable = !isEmailEditable;
-                  isEmailIconTapped = !isEmailIconTapped;
-                  _saveIconState(isEmailIconTapped);
-                  if (!isEmailEditable) {
-                    isEmailIconTapped = false;
-                  }
-                });
-              },
-              isIconTapped: isEmailIconTapped,
+              readOnly: true,
+              decoration: InputDecoration(
+                labelText: 'Email',
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
             ),
             SizedBox(height: 20),
             Row(
@@ -199,10 +197,10 @@ class _ParentWidgetState extends State<UserProfilePage> {
                             lastDate: DateTime.now(),
                           ).then((selectedDate) {
                             if (selectedDate != null) {
-                              // Xử lý ngày đã chọn ở đây
+                              // Cập nhật ngày sinh thành dạng chuỗi ngày/tháng/năm
                               setState(() {
                                 namsinhController.text =
-                                    "${selectedDate.day}/${selectedDate.month}/${selectedDate.year}";
+                                    formatDate(selectedDate);
                               });
                             }
                           });
@@ -218,7 +216,9 @@ class _ParentWidgetState extends State<UserProfilePage> {
                 SizedBox(width: 20),
                 Expanded(
                   child: DropdownButtonFormField<String>(
-                    value: dropdownValue,
+                    value: genderController.text.isNotEmpty
+                        ? genderController.text
+                        : 'Chọn',
                     decoration: InputDecoration(
                       labelText: 'Giới tính',
                       border: OutlineInputBorder(
@@ -227,10 +227,16 @@ class _ParentWidgetState extends State<UserProfilePage> {
                     ),
                     onChanged: (String? newValue) {
                       setState(() {
-                        dropdownValue = newValue!;
+                        if (newValue == 'Chọn') {
+                          genderController.text =
+                              ''; // Nếu chọn 'Chọn', lưu vào controller là rỗng
+                        } else {
+                          genderController.text =
+                              newValue ?? ''; // Lưu giá trị mới vào controller
+                        }
                       });
                     },
-                    items: <String>['Nam', 'Nữ', 'Khác']
+                    items: <String>['Chọn', 'Nam', 'Nữ', 'Khác']
                         .map<DropdownMenuItem<String>>((String value) {
                       return DropdownMenuItem<String>(
                         value: value,
@@ -244,12 +250,8 @@ class _ParentWidgetState extends State<UserProfilePage> {
             SizedBox(height: 50),
             Center(
               child: ElevatedButton(
-                onPressed: () {
-                  // Xử lý khi nhấn nút "Lưu"
-                  // Ở đây bạn có thể thực hiện lưu dữ liệu hoặc thực hiện các hành động khác
-                  // Sau đó có thể hiển thị thông báo hoặc chuyển hướng trang
-                  // Ví dụ: Navigator.pop(context);
-                },
+                onPressed:
+                    _saveDataToFirestore, // Gọi hàm để lưu dữ liệu vào Firestore
                 style: ElevatedButton.styleFrom(
                   padding: EdgeInsets.symmetric(horizontal: 50, vertical: 16),
                   minimumSize: Size(150, 50),
@@ -261,6 +263,23 @@ class _ParentWidgetState extends State<UserProfilePage> {
         ),
       ),
     );
+  }
+
+  // Hàm lấy dữ liệu từ Firestore
+  void _fetchUserData() async {
+    await UserProfileRepository.fetchUserData(hoTenController, emailController,
+        namsinhController, avtController, genderController);
+
+    if (namsinhController.text.isNotEmpty) {
+      DateTime dateTime = DateTime.parse(namsinhController.text);
+      namsinhController.text = formatDate(dateTime);
+    }
+  }
+
+  // Hàm lưu dữ liệu vào Cloud Firestore
+  void _saveDataToFirestore() {
+    UserProfileRepository.saveCustomerProfileChanges(hoTenController,
+        emailController, namsinhController, avtController, genderController);
   }
 
   // Hàm tạo TextField có chức năng chỉnh sửa và biểu tượng thay đổi màu
@@ -294,18 +313,9 @@ class _ParentWidgetState extends State<UserProfilePage> {
     );
   }
 
-  // Hàm lưu trạng thái của icon vào SharedPreferences
-  _saveIconState(bool isIconTapped) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.setBool('isIconTapped', isIconTapped);
-  }
-
   // Hàm khôi phục trạng thái của icon từ SharedPreferences
   _restoreIconStates() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    setState(() {
-      isHoTenIconTapped = prefs.getBool('isHoTenIconTapped') ?? false;
-      isEmailIconTapped = prefs.getBool('isEmailIconTapped') ?? false;
-    });
+    await UserProfileRepository.restoreIconStates(isHoTenIconTapped,
+        isEmailIconTapped); // Sử dụng phương thức từ repository
   }
 }

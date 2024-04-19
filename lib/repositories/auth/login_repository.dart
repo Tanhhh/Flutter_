@@ -19,6 +19,9 @@ Future<void> loginUserWithEmailAndPassword(
       throw 'Email không đúng định dạng.';
     }
 
+    // Chuyển đổi email thành chữ thường trước khi tìm kiếm
+    email = email.toLowerCase();
+
     QuerySnapshot userSnapshot = await FirebaseFirestore.instance
         .collection('customers')
         .where('customerEmail', isEqualTo: email)

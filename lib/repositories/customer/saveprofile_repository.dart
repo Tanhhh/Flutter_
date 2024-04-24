@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import '../../repositories/auth/user_repository.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class UserProfileRepository {
   static Future<void> fetchUserData(
@@ -11,9 +12,12 @@ class UserProfileRepository {
     TextEditingController avtController,
     TextEditingController genderController,
   ) async {
-    DocumentSnapshot? currentUser = UserRepository().getUser();
-    if (currentUser != null) {
-      Map<String, dynamic> data = currentUser.data() as Map<String, dynamic>;
+    User? currentUser = UserRepository().getUserAuth();
+
+    DocumentSnapshot? snapshot =
+        await UserRepository().getUserCloud(currentUser);
+    if (snapshot != null && snapshot.exists) {
+      Map<String, dynamic> data = snapshot.data() as Map<String, dynamic>;
       hoTenController.text = data['customerName'] ?? '';
       emailController.text = data['customerEmail'] ?? '';
       namsinhController.text = data['customerBirthDay'] != null
@@ -28,6 +32,8 @@ class UserProfileRepository {
       print('customerBirthDay: ${namsinhController.text}');
       print('customerAvatar: ${avtController.text}');
       print('customerGender: ${genderController.text}');
+    } else {
+      print('Không tìm thấy dữ liệu người dùng');
     }
   }
 
@@ -63,9 +69,11 @@ class UserProfileRepository {
       namsinhDateTime = _parseVietnameseDate(namsinhController.text);
     }
 
-    DocumentSnapshot? currentUser = UserRepository().getUser();
-    if (currentUser != null) {
-      String userID = currentUser.id;
+    User? currentUser = UserRepository().getUserAuth();
+    DocumentSnapshot? userDataSnapshot =
+        await UserRepository().getUserCloud(currentUser);
+    if (userDataSnapshot != null && userDataSnapshot.exists) {
+      String userID = userDataSnapshot.id;
       // Dữ liệu mới cần cập nhật
       Map<String, dynamic> newData = {
         'customerName': hoTen,
@@ -74,16 +82,23 @@ class UserProfileRepository {
         'customerAvatar': avtUrl,
         'customerGender': gioiTinh,
       };
-      // Thực hiện cập nhật dữ liệu mới vào Firestore
-      await FirebaseFirestore.instance
-          .collection('customers')
-          .doc(userID)
-          .update(newData)
-          .then((value) async {})
-          .catchError((error) {
-        // Xử lý khi gặp lỗi
-        print("Lỗi khi cập nhật dữ liệu: $error");
-      });
+
+      // Kiểm tra nếu dữ liệu mới không null
+      if (newData.values.every((value) => value != null)) {
+        // Thực hiện cập nhật dữ liệu mới vào Firestore
+        await FirebaseFirestore.instance
+            .collection('customers')
+            .doc(userID)
+            .update(newData)
+            .then((value) async {
+          // Nếu cập nhật thành công, có thể thực hiện các hành động khác ở đây
+        }).catchError((error) {
+          // Xử lý khi gặp lỗi
+          print("Lỗi khi cập nhật dữ liệu: $error");
+        });
+      } else {
+        print("Dữ liệu mới không hợp lệ, không thực hiện cập nhật.");
+      }
     }
   }
 

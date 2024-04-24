@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../page/home/home.page.dart';
-import 'user_repository.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import '../../model/customer_model.dart';
+import '../auth/user_repository.dart';
 
 Future<void> loginUserWithEmailAndPassword(
     BuildContext context, String email, String password) async {
@@ -22,56 +24,109 @@ Future<void> loginUserWithEmailAndPassword(
     // Chuyển đổi email thành chữ thường trước khi tìm kiếm
     email = email.toLowerCase();
 
-    QuerySnapshot userSnapshot = await FirebaseFirestore.instance
+    // Thực hiện đăng nhập bằng email và mật khẩu
+    UserCredential userCredential = await FirebaseAuth.instance
+        .signInWithEmailAndPassword(email: email, password: password);
+    String userUID = userCredential.user!.uid;
+
+    print('Xác thực: ${userCredential.user?.emailVerified}');
+    // Kiểm tra xem email đã được xác thực chưa
+    if (!userCredential.user!.emailVerified) {
+      throw 'Email của bạn chưa được xác thực.';
+    }
+
+    // Lưu thông tin người dùng vào biến currentUserAuth
+    User? user = userCredential.user;
+    UserRepository().setUserAuth(user);
+
+    // Kiểm tra xem userUID có tồn tại trong collection 'customers' không
+    DocumentSnapshot userSnapshot = await FirebaseFirestore.instance
         .collection('customers')
-        .where('customerEmail', isEqualTo: email)
+        .doc(userUID)
         .get();
 
-    if (userSnapshot.docs.isNotEmpty) {
-      QuerySnapshot userWithPasswordSnapshot = await FirebaseFirestore.instance
-          .collection('customers')
-          .where('customerEmail', isEqualTo: email)
-          .where('customerPassword', isEqualTo: password)
-          .get();
-
-      // Nếu tìm thấy người dùng có cả email và mật khẩu tương ứng
-      if (userWithPasswordSnapshot.docs.isNotEmpty) {
-        print('Đăng nhập thành công!');
-
-        // Lưu thông tin người dùng vào UserRepository
-        UserRepository().setUser(userWithPasswordSnapshot.docs.first);
-
-        showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return AlertDialog(
-              title: Text('Thông báo'),
-              content: Text('Đăng nhập thành công!'),
-              actions: [
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => HomePage(),
-                      ),
-                    );
-                  },
-                  child: Text('Đóng'),
-                ),
-              ],
-            );
-          },
-        );
-      } else {
-        throw 'Mật khẩu không đúng.';
-      }
+    // Nếu tài liệu tồn tại và customerId trùng với userUID, đăng nhập thành công
+    if (userSnapshot.exists &&
+        (userSnapshot.data() as Map<String, dynamic>)['customerId'] ==
+            userUID) {
+      // Hiển thị thông báo đăng nhập thành công và chuyển hướng người dùng đến trang chính
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('Thông báo'),
+            content: Text('Đăng nhập thành công!'),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => HomePage(),
+                    ),
+                  );
+                },
+                child: Text('Đóng'),
+              ),
+            ],
+          );
+        },
+      );
     } else {
-      throw 'Người dùng không tồn tại.';
+      // Nếu không tồn tại hoặc customerId không trùng với userUID, tạo mới thông tin khách hàng
+      DocumentReference docRef =
+          FirebaseFirestore.instance.collection('customers').doc(userUID);
+
+      // Tạo đối tượng Customer từ thông tin đăng ký và gán document ID vào trường customerId
+      Customer newCustomer = Customer(
+        customerId: userUID,
+        customerName: '',
+        customerEmail: email,
+        customerPassword: password,
+        customerGender: '',
+        customerBirthDay: null,
+        isActive: true,
+        createdBy: 'system',
+        createDate: DateTime.now(),
+        updatedDate: DateTime.now(),
+        updatedBy: 'system',
+        customerAvatar: '',
+      );
+
+      // Lưu đối tượng Customer vào Firestore
+      await docRef.set(newCustomer.toMap());
+
+      // Hiển thị thông báo đăng nhập thành công và chuyển hướng người dùng đến trang chính
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('Thông báo'),
+            content: Text('Đăng nhập thành công!'),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => HomePage(),
+                    ),
+                  );
+                },
+                child: Text('Đóng'),
+              ),
+            ],
+          );
+        },
+      );
     }
   } catch (e) {
     String errorMessage = '$e';
+    if (errorMessage.contains('invalid-credential')) {
+      errorMessage = 'Tài khoản không tồn tại hoặc sai mật khẩu';
+    }
 
     showDialog(
       context: context,

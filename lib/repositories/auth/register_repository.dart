@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import '../../model/customer_model.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+
 import '../../page/auth/login/login.page.dart';
 
 Future<void> registerUserWithEmailAndPassword(
@@ -23,49 +23,23 @@ Future<void> registerUserWithEmailAndPassword(
 
     email = email.toLowerCase();
 
-    QuerySnapshot emailSnapshot = await FirebaseFirestore.instance
-        .collection('customers')
-        .where('customerEmail', isEqualTo: email)
-        .get();
+    // Tạo tài khoản người dùng bằng cách sử dụng FirebaseAuth
+    UserCredential userCredential = await FirebaseAuth.instance
+        .createUserWithEmailAndPassword(email: email, password: password);
 
-    if (emailSnapshot.docs.isNotEmpty) {
-      throw 'Email đã được sử dụng.';
-    }
+    // Gửi email xác thực
+    await userCredential.user?.sendEmailVerification();
 
-    // Tạo một tham chiếu tới một tài liệu mới trong collection 'customers'
-    DocumentReference docRef =
-        await FirebaseFirestore.instance.collection('customers').add({});
+    // In thông tin người dùng đã xác thực
+    print('Email đã được gửi xác thực: ${userCredential.user?.emailVerified}');
 
-    // Lấy document ID của tài liệu mới được tạo
-    String documentId = docRef.id;
-
-    // Tạo đối tượng Customer từ thông tin đăng ký và gán document ID vào trường customerId
-    Customer newCustomer = Customer(
-      customerId: documentId,
-      customerName: name,
-      customerEmail: email,
-      customerPassword: password,
-      customerGender: '',
-      customerBirthDay: null,
-      isActive: true,
-      createdBy: 'system',
-      createDate: DateTime.now(),
-      updatedDate: DateTime.now(),
-      updatedBy: 'system',
-      customerAvatar: '',
-    );
-
-    // Lưu đối tượng Customer vào Firestore
-    await docRef.set(newCustomer.toMap());
-
-    print('Đăng ký thành công!');
-
+    // Hiển thị thông báo yêu cầu kiểm tra Gmail để xác thực
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
           title: Text('Thông báo'),
-          content: Text('Đăng ký thành công!'),
+          content: Text('Vui lòng kiểm tra Gmail để xác thực email.'),
           actions: [
             TextButton(
               onPressed: () {
@@ -86,6 +60,7 @@ Future<void> registerUserWithEmailAndPassword(
   } catch (e) {
     String errorMessage = '$e';
 
+    // Hiển thị thông báo lỗi
     showDialog(
       context: context,
       builder: (BuildContext context) {

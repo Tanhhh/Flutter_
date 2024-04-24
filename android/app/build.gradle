@@ -34,6 +34,8 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
+     
+    
 
     kotlinOptions {
         jvmTarget = '1.8'
@@ -52,6 +54,7 @@ android {
         targetSdkVersion flutter.targetSdkVersion
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
+        multiDexEnabled true 
     }
 
     buildTypes {
@@ -67,4 +70,11 @@ flutter {
     source '../..'
 }
 
-dependencies {}
+dependencies {
+      // Import the BoM for the Firebase platform
+    implementation(platform("com.google.firebase:firebase-bom:32.8.1"))
+
+    // Add the dependency for the App Check library
+    // When using the BoM, you don't specify versions in Firebase library dependencies
+    implementation("com.google.firebase:firebase-appcheck-safetynet:16.0.0")
+}

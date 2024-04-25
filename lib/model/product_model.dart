@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 class Product {
   final String? productId;
   final String name;
@@ -5,7 +7,7 @@ class Product {
   final double price;
   final double priceSale;
   final int quantity;
-  final String imageProduct;
+  String imageProduct;
   final bool isNew;
   final bool isSale;
   final bool isHot;
@@ -42,4 +44,29 @@ class Product {
     required this.productCategoryId,
     required this.discountId,
   });
+
+  factory Product.fromDocument(QueryDocumentSnapshot doc) {
+    return Product(
+      productId: doc.id,
+      name: doc['name'],
+      description: doc['description'],
+      price: double.parse(doc['price'].toString()),
+      priceSale: double.parse(doc['priceSale'].toString()),
+      quantity: doc['quantity'],
+      imageProduct: doc['imageProduct'],
+      isNew: doc['isNew'],
+      isSale: doc['isSale'],
+      isHot: doc['isHot'],
+      isSoldOut: doc['isSoldOut'],
+      isActive: doc['isActive'],
+      createdBy: doc['createdBy'],
+      createDate: doc['createDate'].toDate(),
+      updatedDate: doc['updatedDate'].toDate(),
+      rating: doc['rating'],
+      sizeProductId: doc['sizeProductId'],
+      genderCategoryId: doc['genderCategoryId'],
+      productCategoryId: doc['productCategoryId'],
+      discountId: doc['discountId'],
+    );
+  }
 }

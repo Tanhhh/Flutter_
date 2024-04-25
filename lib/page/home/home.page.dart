@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_ltdddoan/gen/assets.gen.dart';
-import 'package:flutter_ltdddoan/model/clothes.model.dart';
 import 'package:flutter_ltdddoan/page/home/widget/icon.widget.dart';
 import 'package:flutter_ltdddoan/page/home/widget/item.widget.dart';
 import '../Cart/Cartpage.dart';
 import '../search/SearchItem.dart';
 import 'menu_bar.dart';
+import '../../repositories/products/getproduct_list.dart';
+import '../../model/product_model.dart';
+import '../home/widget/fliterproduct.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -14,15 +16,47 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => _HomePageState();
 }
 
+List<Product> products = [];
+
 class _HomePageState extends State<HomePage> {
+  void getNewProducts() async {
+    ProductRepository productRepository = ProductRepository();
+    products = await productRepository.getNewProductsWithImages();
+    setState(() {});
+  }
+
+  void getHotProducts() async {
+    ProductRepository productRepository = ProductRepository();
+    products = await productRepository.getHotProducts();
+    setState(() {});
+  }
+
+  void getSaleProducts() async {
+    ProductRepository productRepository = ProductRepository();
+    products = await productRepository.getSaleProductDocumentIds();
+    setState(() {});
+  }
+
+  void getAllProducts() async {
+    ProductRepository productRepository = ProductRepository();
+    products = await productRepository.getAllProducts();
+    setState(() {});
+  }
+
   int selectedIndex = 0;
 
   static final List<String> listCategory = [
+    "Tất cả",
     "Phổ biến",
-    "Đàn ông",
-    "Phụ nữ",
+    "Mới",
     "Sale"
   ];
+  @override
+  void initState() {
+    super.initState();
+    getAllProducts();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -130,6 +164,22 @@ class _HomePageState extends State<HomePage> {
                       setState(() {
                         selectedIndex = index;
                       });
+                      switch (index) {
+                        case 0: // "Tất cả"
+                          getAllProducts();
+                          break;
+                        case 1: // "Phổ biến"
+                          getHotProducts();
+                          break;
+                        case 2: // "Mới"
+                          getNewProducts();
+                          break;
+                        case 3: // "Sale"
+                          getSaleProducts();
+                          break;
+                        default:
+                          getAllProducts();
+                      }
                     },
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -173,18 +223,46 @@ class _HomePageState extends State<HomePage> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Row(
-                  children: [
-                    const Text(
-                      "Lọc sản phẩm",
-                      style:
-                          TextStyle(fontWeight: FontWeight.bold, fontSize: 17),
-                    ),
-                    const SizedBox(
-                      width: 8,
-                    ),
-                    Image.asset(Assets.images.sortTool.path),
-                  ],
+                GestureDetector(
+                  onTap: () {
+                    // Hiển thị hộp thoại lọc sản phẩm khi nhấn vào nút "Lọc sản phẩm"
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        // Trả về widget FilterDialog để hiển thị trong hộp thoại
+                        return FilterDialog();
+                      },
+                    );
+                  },
+                  child: Row(
+                    children: [
+                      const Text(
+                        "Lọc sản phẩm",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 17,
+                        ),
+                      ),
+                      const SizedBox(
+                        width: 8,
+                      ),
+                      GestureDetector(
+                        onTap: () {
+                          // Hiển thị hộp thoại lọc sản phẩm khi nhấn vào biểu tượng
+                          showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              // Trả về widget FilterDialog để hiển thị trong hộp thoại
+                              return FilterDialog();
+                            },
+                          );
+                        },
+                        child: Image.asset(
+                          Assets.images.sortTool.path,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.center,
@@ -213,9 +291,7 @@ class _HomePageState extends State<HomePage> {
                 itemBuilder: (context, index) {
                   final product = products[index];
                   return ItemWidget(
-                    image: product.image,
-                    name: product.title,
-                    price: product.price,
+                    product: product,
                   );
                 },
               ),

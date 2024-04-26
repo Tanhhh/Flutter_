@@ -1,63 +1,49 @@
-import 'CartAppBar.dart';
-import 'Cartitem.dart';
-import 'cartbottomBar.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_ltdddoan/model/clothes.model.dart';
 
-class Cartpage extends StatelessWidget {
+import 'package:flutter_ltdddoan/page/Cart/cartbottomBar.dart';
+import 'package:flutter_ltdddoan/page/Cart/widgets/item.widget.listview.dart';
+
+class Cartpage extends StatefulWidget {
   const Cartpage({super.key});
 
   @override
+  State<Cartpage> createState() => _CartpageState();
+}
+
+class _CartpageState extends State<Cartpage> {
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: ListView(
-        children: [
-          CartAppBar(),
-          Container(
-            height: 700,
-            padding: EdgeInsets.only(top: 15),
-            decoration: BoxDecoration(
-                color: Color(0xFFEDECF2),
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(35),
-                  topRight: Radius.circular(35),
-                )),
-            child: Column(
-              children: [
-                Cartitem(),
-                Container(
-                  //  decoration: BoxDecoration(
-                  //  borderRadius: BorderRadius.circular(10),
-                  // ),
-                  margin: EdgeInsets.symmetric(vertical: 20, horizontal: 15),
-                  padding: EdgeInsets.all(10),
-                  child: Row(children: [
-                    Container(
-                      decoration: BoxDecoration(
-                        color: Color(0xFF4C53A5),
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: Icon(
-                        Icons.add,
-                        color: Colors.white,
-                      ),
-                    ),
-                    Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 10),
-                      child: Text(
-                        "Mã khuyến mãi",
-                        style: TextStyle(
-                          color: Color(0xFF4C53A5),
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
-                        ),
-                      ),
-                    ),
-                  ]),
-                )
-              ],
-            ),
-          )
-        ],
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0.5,
+        centerTitle: true,
+        title: Text(
+          "Giỏ hàng",
+          style: TextStyle(
+            color: Colors.black,
+            fontSize: 20,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+      ),
+      body: Padding(
+        padding: EdgeInsets.all(15),
+        child: Container(
+          padding: EdgeInsets.all(16),
+          child: ListView.builder(
+            itemCount: products.length,
+            itemBuilder: (context, index) {
+              final product = products[index];
+              return ItemListView(
+                image: product.image,
+                name: product.title,
+                price: product.price,
+              );
+            },
+          ),
+        ),
       ),
       bottomNavigationBar: CartBottomBar(),
     );

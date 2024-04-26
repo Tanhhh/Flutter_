@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 class FavoriteProduct {
   final String? favoriteProductId;
   final String customerId;
@@ -8,4 +10,10 @@ class FavoriteProduct {
     required this.customerId,
     required this.productId,
   });
+  factory FavoriteProduct.fromDocument(QueryDocumentSnapshot doc) {
+    return FavoriteProduct(
+        favoriteProductId: doc.id,
+        customerId: doc['customerId'],
+        productId: doc['productId']);
+  }
 }

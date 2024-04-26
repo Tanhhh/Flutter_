@@ -9,7 +9,7 @@ class CartBottomBar extends StatelessWidget {
     return Container(
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
-        height: 130,
+        height: 120,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [

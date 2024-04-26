@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import '../customer/profile.dart';
-import '../order_customer/order_listitem.dart';
-import '../../repositories/auth/user_repository.dart';
+import '../../customer/profile.dart';
+import '../../order_customer/order_listitem.dart';
+import '../../../repositories/auth/user_repository.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import '../../model/customer_model.dart';
-import '../../page/auth/login/login.page.dart';
+import '../../../model/customer_model.dart';
+import '../../auth/login/login.page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class MenuBarRight extends StatelessWidget {

@@ -4,10 +4,11 @@ import 'package:flutter_ltdddoan/page/home/widget/icon.widget.dart';
 import 'package:flutter_ltdddoan/page/home/widget/item.widget.dart';
 import '../Cart/Cartpage.dart';
 import '../search/SearchItem.dart';
-import 'menu_bar.dart';
+import 'widget/menu_bar.dart';
 import '../../repositories/products/getproduct_list.dart';
 import '../../model/product_model.dart';
 import '../home/widget/fliterproduct.dart';
+import '../home/widget/app_bar.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -60,91 +61,8 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        leadingWidth: 100,
-        leading: const Row(
-          children: [
-            Padding(
-              padding: EdgeInsets.only(left: 15),
-              child: Text(
-                "Geeta.",
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.w900,
-                ),
-              ),
-            ),
-          ],
-        ),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 15),
-            child: Row(children: [
-              IconWidget(
-                onTap: () {},
-                iconPath: Assets.images.icon.path,
-                isHaveCount: true,
-                total: '5',
-              ),
-              IconWidget(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => Cartpage()),
-                  );
-                },
-                iconPath: Assets.images.cartIcon.path,
-                isHaveCount: true,
-                total: '3',
-              ),
-              IconWidget(
-                onTap: () {},
-                iconPath: Assets.images.fav.path,
-              ),
-              IconWidget(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => searchItem()),
-                  );
-                },
-                iconPath: Assets.images.searchIcon.path,
-              ),
-              IconButton(
-                icon: Icon(Icons.menu),
-                onPressed: () {
-                  showGeneralDialog(
-                    context: context,
-                    barrierDismissible: true,
-                    barrierLabel: MaterialLocalizations.of(context)
-                        .modalBarrierDismissLabel,
-                    barrierColor: Colors.black.withOpacity(0.5),
-                    transitionDuration: Duration(milliseconds: 200),
-                    pageBuilder: (BuildContext context,
-                        Animation<double> animation,
-                        Animation<double> secondaryAnimation) {
-                      return Align(
-                        alignment: Alignment.centerRight,
-                        child: MenuBarRight(), // Hiển thị menu bar tùy chỉnh
-                      );
-                    },
-                    transitionBuilder: (BuildContext context,
-                        Animation<double> animation,
-                        Animation<double> secondaryAnimation,
-                        Widget child) {
-                      return SlideTransition(
-                        position: Tween(begin: Offset(1, 0), end: Offset.zero)
-                            .animate(animation),
-                        child: child,
-                      );
-                    },
-                  );
-                },
-              ),
-            ]),
-          )
-        ],
+      appBar: CustomAppBar(
+        cartRepository: cartRepository,
       ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20),

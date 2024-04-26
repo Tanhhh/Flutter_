@@ -74,7 +74,12 @@ dependencies {
       // Import the BoM for the Firebase platform
     implementation(platform("com.google.firebase:firebase-bom:32.8.1"))
 
+    // Add the dependencies for the App Check libraries
+    // When using the BoM, you don't specify versions in Firebase library dependencies
+    implementation("com.google.firebase:firebase-appcheck-playintegrity")
     // Add the dependency for the App Check library
     // When using the BoM, you don't specify versions in Firebase library dependencies
     implementation("com.google.firebase:firebase-appcheck-safetynet:16.0.0")
+     implementation 'com.google.firebase:firebase-auth:latest_version'
+    implementation 'com.google.android.gms:play-services-safetynet:latest_version'
 }

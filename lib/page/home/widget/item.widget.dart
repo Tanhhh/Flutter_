@@ -1,11 +1,13 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_ltdddoan/page/Cart/provider/cart.dart';
+import 'package:flutter_ltdddoan/repositories/products/product_detail.dart';
 import 'package:intl/intl.dart';
 import '../../../model/product_model.dart';
 import '../../product/productdetail.dart';
 import '../../../repositories/auth/user_repository.dart';
 import '../../../repositories/products/favorite_product.dart';
+import '../../product/productdetail.dart';
 
 class ItemWidget extends StatefulWidget {
   final Product product;
@@ -127,7 +129,12 @@ class _ItemWidgetState extends State<ItemWidget> {
       onTap: () {
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => ProductDetailsView()),
+          MaterialPageRoute(
+            builder: (context) => ProductDetailsView(
+              productId: widget.product.productId,
+              productRepository: ProductRepository(),
+            ),
+          ),
         );
       },
       child: SizedBox(
@@ -208,7 +215,12 @@ class _ItemWidgetState extends State<ItemWidget> {
               onTap: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => ProductDetailsView()),
+                  MaterialPageRoute(
+                    builder: (context) => ProductDetailsView(
+                      productId: widget.product.productId,
+                      productRepository: ProductRepository(),
+                    ),
+                  ),
                 );
               },
               child: Column(
@@ -243,6 +255,9 @@ class _ItemWidgetState extends State<ItemWidget> {
                                 duration: Duration(seconds: 1),
                               ),
                             );
+                            if (cartRepository.onCartChanged != null) {
+                              cartRepository.onCartChanged!();
+                            }
                           },
                           icon: Icon(Icons.add_shopping_cart_rounded),
                           color: Colors.white,

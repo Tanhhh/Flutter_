@@ -1,10 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_ltdddoan/gen/assets.gen.dart';
-import 'package:flutter_ltdddoan/page/home/widget/icon.widget.dart';
 import 'package:flutter_ltdddoan/page/home/widget/item.widget.dart';
-import '../Cart/Cartpage.dart';
-import '../search/SearchItem.dart';
-import 'widget/menu_bar.dart';
 import '../../repositories/products/getproduct_list.dart';
 import '../../model/product_model.dart';
 import '../home/widget/fliterproduct.dart';
@@ -63,6 +59,9 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       appBar: CustomAppBar(
         cartRepository: cartRepository,
+        onCartChanged: () {
+          setState(() {}); // Gọi setState để cập nhật lại UI
+        },
       ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20),

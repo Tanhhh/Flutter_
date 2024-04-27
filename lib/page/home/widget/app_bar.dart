@@ -8,10 +8,16 @@ import '../../search/SearchItem.dart';
 
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final CartRepository cartRepository;
+  final VoidCallback? onCartChanged;
 
-  CustomAppBar({required this.cartRepository});
+  CustomAppBar({
+    required this.cartRepository,
+    this.onCartChanged,
+  });
+
   @override
   Size get preferredSize => const Size.fromHeight(kToolbarHeight);
+
   @override
   Widget build(BuildContext context) {
     return AppBar(

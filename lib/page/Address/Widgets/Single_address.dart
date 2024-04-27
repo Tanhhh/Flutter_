@@ -6,22 +6,20 @@ class SingleAddress extends StatelessWidget {
     required this.selectedAddress,
     required this.name,
     required this.phone,
-    required this.address,
-});
+    required this.addressNote,
+  });
   final bool selectedAddress;
   final String name;
   final String phone;
-  final String address;
+  final String addressNote;
 
   @override
-  Widget build(BuildContext context)
-  {
+  Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
       margin: const EdgeInsets.all(5.0),
       padding: const EdgeInsets.all(5.0),
-      decoration: BoxDecoration(
-      ),
+      decoration: BoxDecoration(),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -47,8 +45,9 @@ class SingleAddress extends StatelessWidget {
             phone,
           ),
           Text(
-            address,
+            addressNote,
           ),
+          Divider(),
         ],
       ),
     );

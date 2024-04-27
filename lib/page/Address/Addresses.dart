@@ -1,15 +1,45 @@
 import 'package:flutter/material.dart';
 import '../Address/Widgets/Single_address.dart';
 import '../Address/add_new_address.dart';
+import 'package:flutter_ltdddoan/model/customeraddress.dart';
+import 'package:flutter_ltdddoan/repositories/address/address_repository.dart';
 
 class AddressScreen extends StatefulWidget {
   const AddressScreen({Key? key}) : super(key: key);
 
   @override
-  _AdressScreenState createState() => _AdressScreenState();
+  _AddressScreenState createState() => _AddressScreenState();
 }
 
-class _AdressScreenState extends State<AddressScreen> {
+class _AddressScreenState extends State<AddressScreen> {
+  List<CustomerAddress> addresses = [];
+  int selectedAddressIndex = -1;
+  CustomerAddress? selectedAddress; //Biến tạm lưu address được chọn
+  @override
+  void initState() {
+    super.initState();
+    loadAddresses();
+  }
+
+  void loadAddresses() async {
+    AddressRepository repository = AddressRepository();
+    addresses = await repository.getAddresses();
+    setState(() {});
+  }
+
+  void handleAddressSelection(int index) {
+    setState(() {
+      if (selectedAddressIndex == index) {
+        selectedAddressIndex = -1;
+        selectedAddress = null;
+      } else {
+        selectedAddressIndex = index;
+        selectedAddress = addresses[index];
+        Navigator.of(context).pop();
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final leadingWidth = MediaQuery.of(context).size.width / 3;
@@ -47,7 +77,7 @@ class _AdressScreenState extends State<AddressScreen> {
       ),
       body: SingleChildScrollView(
         child: Padding(
-          padding: EdgeInsets.all(24), //padding
+          padding: EdgeInsets.all(24),
           child: Column(
             children: [
               GestureDetector(
@@ -55,7 +85,8 @@ class _AdressScreenState extends State<AddressScreen> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (context) => const AddNewAdressScreen()),
+                      builder: (context) => const AddNewAdressScreen(),
+                    ),
                   );
                 },
                 child: Container(
@@ -67,10 +98,10 @@ class _AdressScreenState extends State<AddressScreen> {
                     children: [
                       Row(
                         children: [
-                          Icon(Icons.add), // Thêm biểu tượng ở đây
+                          Icon(Icons.add),
                           SizedBox(
-                              width:
-                                  24), // Khoảng cách 24px giữa biểu tượng và văn bản
+                            width: 24,
+                          ),
                           Text(
                             "Thêm địa chỉ",
                             style: TextStyle(fontWeight: FontWeight.bold),
@@ -80,7 +111,7 @@ class _AdressScreenState extends State<AddressScreen> {
                       Text(
                         ">",
                         style: TextStyle(
-                          fontSize: 18, // Đặt kích thước phù hợp
+                          fontSize: 18,
                           fontWeight: FontWeight.bold,
                           color: Colors.black,
                         ),
@@ -90,18 +121,20 @@ class _AdressScreenState extends State<AddressScreen> {
                 ),
               ),
               Divider(),
-              SingleAddress(
-                  selectedAddress: false,
-                  name: 'Name: Nguyễn Văn A',
-                  phone: 'Phone: 0944312341',
-                  address: 'Trường Huflit, Quận 10, Thành phố HCM, Việt Nam'),
-              Divider(),
-              SingleAddress(
-                  selectedAddress: false,
-                  name: 'Name: Nguyễn Văn B',
-                  phone: 'Phone: 0911221220',
-                  address: 'Trường Huflit, Quận 10, Thành phố HCM, Việt Nam'),
-              Divider(),
+              ...addresses.map((address) {
+                int index = addresses.indexOf(address);
+                return GestureDetector(
+                  onTap: () {
+                    handleAddressSelection(index);
+                  },
+                  child: SingleAddress(
+                    selectedAddress: selectedAddressIndex == index,
+                    name: 'Name: ${address.name}',
+                    phone: 'Phone: ${address.phone}',
+                    addressNote: 'Address: ${address.addressNote}',
+                  ),
+                );
+              }).toList(),
             ],
           ),
         ),

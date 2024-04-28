@@ -6,7 +6,6 @@ class Product {
   final String description;
   final double price;
   final double priceSale;
-  final int quantity;
   final bool isNew;
   final bool isSale;
   final bool isHot;
@@ -16,7 +15,6 @@ class Product {
   final DateTime createDate;
   final DateTime updatedDate;
   final int rating;
-  final String sizeProductId;
   final String genderCategoryId;
   final String productCategoryId;
   final String discountId;
@@ -28,7 +26,6 @@ class Product {
     required this.description,
     required this.price,
     required this.priceSale,
-    required this.quantity,
     required this.isNew,
     required this.isSale,
     required this.isHot,
@@ -38,7 +35,6 @@ class Product {
     required this.createDate,
     required this.updatedDate,
     required this.rating,
-    required this.sizeProductId,
     required this.genderCategoryId,
     required this.productCategoryId,
     required this.discountId,
@@ -52,7 +48,6 @@ class Product {
       description: doc['description'],
       price: double.parse(doc['price'].toString()),
       priceSale: double.parse(doc['priceSale'].toString()),
-      quantity: doc['quantity'],
       isNew: doc['isNew'],
       isSale: doc['isSale'],
       isHot: doc['isHot'],
@@ -62,7 +57,6 @@ class Product {
       createDate: doc['createDate'].toDate(),
       updatedDate: doc['updatedDate'].toDate(),
       rating: doc['rating'],
-      sizeProductId: doc['sizeProductId'],
       genderCategoryId: doc['genderCategoryId'],
       productCategoryId: doc['productCategoryId'],
       discountId: doc['discountId'],

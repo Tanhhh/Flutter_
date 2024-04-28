@@ -59,9 +59,6 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       appBar: CustomAppBar(
         cartRepository: cartRepository,
-        onCartChanged: () {
-          setState(() {}); // Gọi setState để cập nhật lại UI
-        },
       ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -181,17 +178,6 @@ class _HomePageState extends State<HomePage> {
                     ],
                   ),
                 ),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Image.asset(Assets.images.gridView.path),
-                    const SizedBox(
-                      width: 8,
-                    ),
-                    Image.asset(Assets.images.fullView.path)
-                  ],
-                )
               ],
             ),
             const SizedBox(

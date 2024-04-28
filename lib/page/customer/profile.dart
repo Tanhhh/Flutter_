@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_ltdddoan/page/product/widget/view_full1image.dart';
 import '../home/home.page.dart';
-import 'package:photo_view/photo_view.dart';
 import '../../repositories/customer/saveprofile_repository.dart';
 import 'package:intl/intl.dart';
 import 'upload_avt.dart';
@@ -69,42 +69,15 @@ class _ParentWidgetState extends State<UserProfilePage> {
                               leading: Icon(Icons.image),
                               title: Text('Xem ảnh'),
                               onTap: () {
-                                Navigator.pop(context);
-                                showDialog(
-                                  context: context,
-                                  builder: (BuildContext context) {
-                                    return GestureDetector(
-                                      onTap: () {
-                                        Navigator.of(context).pop();
-                                      },
-                                      child: Center(
-                                        child: Container(
-                                          color: Colors.black,
-                                          child: ConstrainedBox(
-                                            constraints: BoxConstraints(
-                                              maxWidth: MediaQuery.of(context)
-                                                  .size
-                                                  .width,
-                                              maxHeight: MediaQuery.of(context)
-                                                  .size
-                                                  .height,
-                                            ),
-                                            child: PhotoView(
-                                              imageProvider: AssetImage(
-                                                avtController.text.isEmpty
-                                                    ? 'images/avt.png'
-                                                    : avtController.text,
-                                              ),
-                                              backgroundDecoration:
-                                                  BoxDecoration(
-                                                color: Colors.black,
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    );
-                                  },
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => SingleImagePage(
+                                      imageUrl: avtController.text.isEmpty
+                                          ? 'assets/images/avt.png'
+                                          : avtController.text,
+                                    ),
+                                  ),
                                 );
                               },
                             ),

@@ -1,10 +1,15 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter_ltdddoan/model/sizeproduct_model.dart';
 import '../../model/product_model.dart';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 
 class ProductRepository {
   final CollectionReference _productCollection =
       FirebaseFirestore.instance.collection('products');
+  final CollectionReference _availableSizeProductCollection =
+      FirebaseFirestore.instance.collection('availablesizeproduct');
+  final CollectionReference _sizeproductCollection =
+      FirebaseFirestore.instance.collection('availablesizeproduct');
 
   Future<Product?> getProductById(String productId) async {
     try {
@@ -47,6 +52,36 @@ class ProductRepository {
       return imageUrls;
     } catch (e) {
       print('Error getting image URLs: $e');
+      return []; // Trả về danh sách rỗng nếu có lỗi
+    }
+  }
+
+  Future<List<String>> getProductSizes(String productId) async {
+    try {
+      List<String> productSizes = [];
+
+      QuerySnapshot snapshot = await _availableSizeProductCollection
+          .where('productId', isEqualTo: productId)
+          .get();
+
+      for (DocumentSnapshot doc in snapshot.docs) {
+        // Lấy sizeProductId từ document
+        String sizeProductId = doc['sizeProductId'];
+
+        DocumentSnapshot sizeDoc = await FirebaseFirestore.instance
+            .collection('sizeproduct')
+            .doc(sizeProductId)
+            .get();
+
+        SizeProduct sizeProduct = SizeProduct.fromDocument(sizeDoc);
+
+        // Thêm size vào danh sách
+        productSizes.add(sizeProduct.name);
+      }
+
+      return productSizes;
+    } catch (e) {
+      print('Error getting product sizes: $e');
       return []; // Trả về danh sách rỗng nếu có lỗi
     }
   }

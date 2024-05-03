@@ -1,22 +1,33 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_ltdddoan/page/product/widget/addtocart_widget.dart';
+import 'package:flutter_ltdddoan/page/Cart/provider/cart.dart';
+import 'package:flutter_ltdddoan/page/home/home.page.dart';
+import 'package:flutter_ltdddoan/page/product/provider/favoriteproduct_get.dart';
+import 'package:flutter_ltdddoan/page/product/provider/productquantity_get.dart';
+import 'package:flutter_ltdddoan/page/product/provider/size_get.dart';
 import 'package:flutter_ltdddoan/page/product/widget/size_button_dart';
+import 'package:flutter_ltdddoan/page/product/widget/update_quantityproduct.dart';
 import 'package:flutter_ltdddoan/page/product/widget/view_full1image.dart';
+import 'package:flutter_ltdddoan/repositories/auth/user_repository.dart';
+import 'package:flutter_ltdddoan/repositories/products/favorite_product.dart';
+import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import '../../model/product_model.dart';
-import '../../repositories/products/product_detail.dart'; // Import ProductRepository
+import '../../repositories/products/product_detail.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'widget/view_fullimages.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class ProductDetailsView extends StatefulWidget {
   final String productId;
   final ProductRepository productRepository;
+  final CartRepository cartRepository;
 
   ProductDetailsView({
     Key? key,
     required this.productId,
     required this.productRepository,
+    required this.cartRepository,
   }) : super(key: key);
 
   @override
@@ -24,21 +35,33 @@ class ProductDetailsView extends StatefulWidget {
 }
 
 class _ProductDetailsViewState extends State<ProductDetailsView> {
-  late Future<Product?> _productFuture;
-  late Future<List<String>> _productSizesFuture; // Biến để lưu danh sách size
+  final QuantityController _quantityController = Get.put(QuantityController());
+  final SizeController _sizeController = Get.put(SizeController());
+  final FavoriteController _favoriteController = Get.put(FavoriteController());
+  User? currentUser;
 
   @override
   void initState() {
     super.initState();
-    _productFuture = widget.productRepository.getProductById(widget.productId);
-    _productSizesFuture = widget.productRepository
-        .getProductSizes(widget.productId); // Gọi hàm để lấy danh sách size
+    _quantityController.reset();
+    _sizeController.reset();
+    currentUser = UserRepository().getUserAuth();
+    checkFavoriteStatus();
+  }
+
+  Future<void> checkFavoriteStatus() async {
+    if (currentUser == null) return;
+    bool favoriteStatus = await FavoriteProductRepository()
+        .isProductFavorite(widget.productId, currentUser!.uid);
+    setState(() {
+      _favoriteController.isFavorite.value = favoriteStatus;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<Product?>(
-      future: _productFuture,
+      future: widget.productRepository.getProductById(widget.productId),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Center(child: CircularProgressIndicator());
@@ -48,7 +71,8 @@ class _ProductDetailsViewState extends State<ProductDetailsView> {
           Product? product = snapshot.data;
           if (product != null) {
             return FutureBuilder<List<String>>(
-              future: _productSizesFuture,
+              future:
+                  widget.productRepository.getProductSizes(widget.productId),
               builder: (context, sizeSnapshot) {
                 if (sizeSnapshot.connectionState == ConnectionState.waiting) {
                   return Center(child: CircularProgressIndicator());
@@ -70,7 +94,14 @@ class _ProductDetailsViewState extends State<ProductDetailsView> {
                       elevation: 0,
                       leading: IconButton(
                         onPressed: () {
-                          Navigator.pop(context);
+                          Navigator.pop(context); // Đóng modal
+                          Navigator.pushReplacement(
+                            // Load lại trang
+                            context,
+                            MaterialPageRoute(
+                              builder: (BuildContext context) => HomePage(),
+                            ),
+                          );
                         },
                         icon: const Icon(
                           Icons.arrow_back,
@@ -81,20 +112,57 @@ class _ProductDetailsViewState extends State<ProductDetailsView> {
                         Padding(
                           padding: const EdgeInsets.only(right: 15, top: 15),
                           child: Container(
-                            padding: EdgeInsets.all(0),
+                            padding: EdgeInsets.all(10),
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
                               border: Border.all(
-                                width: 1,
+                                width: 0,
                               ),
                               color: Colors.white,
                             ),
-                            child: IconButton(
-                              alignment: Alignment.center,
-                              onPressed: () {},
-                              icon: const Icon(
-                                Icons.favorite_border_rounded,
-                                color: Colors.black,
+                            child: InkWell(
+                              onTap: () async {
+                                if (currentUser != null) {
+                                  _favoriteController
+                                      .toggleFavorite(); // Thay đổi trạng thái của nút yêu thích
+                                  if (_favoriteController.isFavorite.value) {
+                                    await FavoriteProductRepository()
+                                        .addToFavorites(
+                                      widget.productId,
+                                      currentUser!.uid,
+                                    );
+                                  } else {
+                                    await FavoriteProductRepository()
+                                        .removeFromFavorites(
+                                      widget.productId,
+                                      currentUser!.uid,
+                                    );
+                                  }
+                                } else {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(
+                                        'Bạn cần đăng nhập để thêm sản phẩm vào danh sách yêu thích',
+                                      ),
+                                      duration: Duration(seconds: 1),
+                                    ),
+                                  );
+                                }
+                              },
+                              child: Obx(
+                                () => Container(
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: Icon(
+                                    _favoriteController.isFavorite.value
+                                        ? Icons.favorite
+                                        : Icons.favorite_border_rounded,
+                                    color: _favoriteController.isFavorite.value
+                                        ? Colors.red
+                                        : Colors.black,
+                                  ),
+                                ),
                               ),
                             ),
                           ),
@@ -220,34 +288,7 @@ class _ProductDetailsViewState extends State<ProductDetailsView> {
                                             ],
                                           ),
 
-                                          Container(
-                                            width: 90,
-                                            margin:
-                                                EdgeInsets.only(right: 10.0),
-                                            decoration: BoxDecoration(
-                                              border: Border.all(
-                                                  color: Colors.grey),
-                                            ),
-                                            padding: EdgeInsets.symmetric(
-                                                horizontal: 10),
-                                            child: Row(
-                                              children: [
-                                                Icon(CupertinoIcons.minus,
-                                                    color: Color(0xFF4C53A5),
-                                                    size: 18),
-                                                SizedBox(width: 10),
-                                                Text("1",
-                                                    style: TextStyle(
-                                                        fontSize: 18,
-                                                        fontWeight:
-                                                            FontWeight.bold)),
-                                                SizedBox(width: 10),
-                                                Icon(CupertinoIcons.plus,
-                                                    color: Color(0xFF4C53A5),
-                                                    size: 18),
-                                              ],
-                                            ),
-                                          ),
+                                          QuantitySelector(),
                                         ],
                                       ),
                                       const SizedBox(height: 20),
@@ -277,17 +318,20 @@ class _ProductDetailsViewState extends State<ProductDetailsView> {
                                       const SizedBox(height: 15),
                                       SingleChildScrollView(
                                         scrollDirection: Axis.horizontal,
-                                        child: Row(
-                                          children: sizes.map((size) {
-                                            // Trả về SizeButton cho mỗi size trong danh sách
-                                            return SizeButton(
-                                              size: size,
-                                              onPressed: () {
-                                                // Xử lý khi nút được nhấn
-                                              },
-                                            );
-                                          }).toList(),
-                                        ),
+                                        child: Obx(() => Row(
+                                              children: sizes.map((size) {
+                                                return SizeButton(
+                                                  size: size,
+                                                  isTapped: size ==
+                                                      _sizeController
+                                                          .selectedSize.value,
+                                                  onPressed: () {
+                                                    _sizeController
+                                                        .setSelectedSize(size);
+                                                  },
+                                                );
+                                              }).toList(),
+                                            )),
                                       ),
                                       const SizedBox(height: 20),
                                       Text(
@@ -350,15 +394,93 @@ class _ProductDetailsViewState extends State<ProductDetailsView> {
                                   ),
                                 ),
                               ),
-                              Align(
-                                alignment: Alignment.topCenter,
+                              Positioned(
+                                bottom: 0,
+                                left: 0,
+                                right: 0,
                                 child: Container(
-                                  margin: const EdgeInsets.only(top: 10),
-                                  width: 50,
-                                  height: 5,
-                                  decoration: BoxDecoration(
-                                    color: Color(0xFFF1F4FB),
-                                    borderRadius: BorderRadius.circular(50),
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceEvenly,
+                                    children: [
+                                      Expanded(
+                                        flex: 8,
+                                        child: Padding(
+                                          padding: EdgeInsets.only(
+                                              left: 20.0,
+                                              right: 20.0,
+                                              bottom: 10),
+                                          child: ElevatedButton(
+                                            onPressed: () async {
+                                              if (_sizeController.selectedSize
+                                                  .value.isNotEmpty) {
+                                                widget.cartRepository.addToCart(
+                                                  productId: widget.productId,
+                                                  sizeName: _sizeController
+                                                      .selectedSize.value,
+                                                  quantity: _quantityController
+                                                      .quantity.value,
+                                                );
+                                                ScaffoldMessenger.of(context)
+                                                    .showSnackBar(SnackBar(
+                                                  content: Text(
+                                                      'Đã thêm vào giỏ hàng'),
+                                                  duration:
+                                                      Duration(seconds: 1),
+                                                ));
+                                                await Future.delayed(
+                                                    Duration(seconds: 2));
+                                                Navigator.pop(
+                                                    context); // Đóng modal
+                                                Navigator.pushReplacement(
+                                                  // Load lại trang
+                                                  context,
+                                                  MaterialPageRoute(
+                                                    builder: (BuildContext
+                                                            context) =>
+                                                        HomePage(),
+                                                  ),
+                                                );
+                                              } else {
+                                                ScaffoldMessenger.of(context)
+                                                    .showSnackBar(
+                                                  SnackBar(
+                                                    content:
+                                                        Text('Hãy chọn size'),
+                                                    duration:
+                                                        Duration(seconds: 1),
+                                                  ),
+                                                );
+                                              }
+                                            },
+                                            style: ElevatedButton.styleFrom(
+                                              padding: EdgeInsets.symmetric(
+                                                  vertical: 15),
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(10),
+                                              ),
+                                              backgroundColor:
+                                                  Color(0xFF6342E8),
+                                            ),
+                                            child: Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              children: [
+                                                SizedBox(width: 10),
+                                                Text(
+                                                  'Thêm vào giỏ hàng',
+                                                  style: TextStyle(
+                                                    color: Colors.white,
+                                                    fontSize: 15,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ),
                               ),
@@ -367,7 +489,6 @@ class _ProductDetailsViewState extends State<ProductDetailsView> {
                         ),
                       ],
                     ),
-                    // bottomNavigationBar: ProductDetailsBottom(),
                   );
                 }
               },

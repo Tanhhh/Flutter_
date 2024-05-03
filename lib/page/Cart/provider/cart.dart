@@ -1,13 +1,37 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_ltdddoan/model/available_product_sizes.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../../model/product_model.dart';
+import 'dart:convert';
 
-class CartRepository {
+class CartRepository extends ChangeNotifier {
   List<AvailableSizeProduct> _cartItems = [];
-  VoidCallback? onCartChanged;
-
   List<AvailableSizeProduct> get cartItems => _cartItems;
+
+  static const String cartItemsKey = 'cartItems';
+
+  CartRepository() {
+    _loadCartItems();
+  }
+
+  Future<void> _loadCartItems() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    List<String>? cartItemsJson = prefs.getStringList(cartItemsKey);
+    if (cartItemsJson != null) {
+      _cartItems = cartItemsJson
+          .map((json) => AvailableSizeProduct.fromDocument(jsonDecode(json)))
+          .toList();
+      notifyListeners();
+    }
+  }
+
+  Future<void> _saveCartItems() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    List<String> cartItemsJson =
+        _cartItems.map((item) => jsonEncode(item.toJson())).toList();
+    await prefs.setStringList(cartItemsKey, cartItemsJson);
+  }
 
   void addToCart({
     required String productId,
@@ -16,21 +40,28 @@ class CartRepository {
   }) async {
     try {
       String sizeId = await getSizeIdByName(sizeName);
-      AvailableSizeProduct selectedProduct = AvailableSizeProduct(
-        id: null,
-        productId: productId,
-        sizeProductId: sizeId,
-        quantity: quantity,
-      );
-      _cartItems.add(selectedProduct);
-      if (onCartChanged != null) {
-        onCartChanged!();
-      }
-      print(sizeId);
-      print(sizeName);
 
-      print(productId);
-      print(quantity);
+      bool isExistingProduct = false;
+      for (AvailableSizeProduct product in _cartItems) {
+        if (product.productId == productId && product.sizeProductId == sizeId) {
+          product.quantity += quantity;
+          isExistingProduct = true;
+          break;
+        }
+      }
+
+      if (!isExistingProduct) {
+        AvailableSizeProduct selectedProduct = AvailableSizeProduct(
+          id: null,
+          productId: productId,
+          sizeProductId: sizeId,
+          quantity: quantity,
+        );
+        _cartItems.add(selectedProduct);
+      }
+
+      await _saveCartItems();
+      print('Product added to cart successfully');
     } catch (e) {
       print('Error adding to cart: $e');
     }
@@ -54,9 +85,6 @@ class CartRepository {
 
   void removeFromCart(AvailableSizeProduct product) {
     _cartItems.remove(product);
-    if (onCartChanged != null) {
-      onCartChanged!();
-    }
   }
 
   int get itemCount => _cartItems.length;
@@ -114,8 +142,5 @@ class CartRepository {
   // Add a method to clear the cart
   void clearCart() {
     _cartItems.clear();
-    if (onCartChanged != null) {
-      onCartChanged!();
-    }
   }
 }

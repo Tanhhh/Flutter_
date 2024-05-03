@@ -1,6 +1,9 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_ltdddoan/gen/assets.gen.dart';
 import 'package:flutter_ltdddoan/page/home/widget/item.widget.dart';
+import 'package:flutter_ltdddoan/repositories/auth/user_repository.dart';
+import 'package:flutter_ltdddoan/repositories/products/favorite_product.dart';
 import '../../repositories/products/getproduct_list.dart';
 import '../../model/product_model.dart';
 import '../home/widget/fliterproduct.dart';
@@ -14,6 +17,7 @@ class HomePage extends StatefulWidget {
 }
 
 List<Product> products = [];
+User? currentUser;
 
 class _HomePageState extends State<HomePage> {
   void getNewProducts() async {
@@ -40,6 +44,7 @@ class _HomePageState extends State<HomePage> {
     setState(() {});
   }
 
+  Future<int>? favoriteProductCount;
   int selectedIndex = 0;
 
   static final List<String> listCategory = [
@@ -52,6 +57,14 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     getAllProducts();
+    currentUser = UserRepository().getUserAuth();
+    if (currentUser != null) {
+      // Cập nhật giá trị của favoriteProductCount
+      setState(() {
+        favoriteProductCount =
+            FavoriteProductRepository().countFavoriteProducts(currentUser!.uid);
+      });
+    }
   }
 
   @override
@@ -59,6 +72,7 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       appBar: CustomAppBar(
         cartRepository: cartRepository,
+        favoriteProductCount: favoriteProductCount ?? Future.value(0),
       ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20),

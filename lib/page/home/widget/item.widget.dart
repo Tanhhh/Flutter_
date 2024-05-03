@@ -1,8 +1,10 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_ltdddoan/page/Cart/provider/cart.dart';
+import 'package:flutter_ltdddoan/page/home/home.page.dart';
 import 'package:flutter_ltdddoan/page/product/widget/addtocartbottom_widget.dart';
 import 'package:flutter_ltdddoan/repositories/products/product_detail.dart';
+import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import '../../../model/product_model.dart';
 import '../../product/productdetail.dart';
@@ -20,7 +22,7 @@ class ItemWidget extends StatefulWidget {
 final CartRepository cartRepository = CartRepository();
 
 class _ItemWidgetState extends State<ItemWidget> {
-  bool isFavorite = false;
+  RxBool isFavorite = false.obs;
   User? currentUser;
 
   @override
@@ -32,12 +34,10 @@ class _ItemWidgetState extends State<ItemWidget> {
   }
 
   Future<void> checkFavoriteStatus() async {
-    if (currentUser == null) return; // Kiểm tra nếu currentUser là null
+    if (currentUser == null) return;
     bool favoriteStatus = await FavoriteProductRepository()
         .isProductFavorite(widget.product.productId, currentUser!.uid);
-    setState(() {
-      isFavorite = favoriteStatus;
-    });
+    isFavorite.value = favoriteStatus;
   }
 
   @override
@@ -133,6 +133,7 @@ class _ItemWidgetState extends State<ItemWidget> {
             builder: (context) => ProductDetailsView(
               productId: widget.product.productId,
               productRepository: ProductRepository(),
+              cartRepository: cartRepository,
             ),
           ),
         );
@@ -165,32 +166,79 @@ class _ItemWidgetState extends State<ItemWidget> {
                         height: 60,
                       ),
                       // Nút yêu thích
-                      InkWell(
-                        onTap: () async {
-                          if (isFavorite) {
-                            await FavoriteProductRepository()
-                                .removeFromFavorites(
-                                    widget.product.productId, currentUser!.uid);
-                          } else {
-                            await FavoriteProductRepository().addToFavorites(
-                                widget.product.productId, currentUser!.uid);
-                          }
-                          // Cập nhật trạng thái của biểu tượng yêu thích
-                          setState(() {
-                            isFavorite = !isFavorite;
-                          });
-                        },
-                        child: Container(
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                          ),
-                          child: Icon(
-                            isFavorite ? Icons.favorite : Icons.favorite_border,
-                            color: isFavorite ? Colors.red : Colors.black,
-                            size: 40,
-                          ),
-                        ),
-                      ),
+                      Obx(() => InkWell(
+                            onTap: () async {
+                              String message;
+
+                              try {
+                                if (isFavorite.value) {
+                                  await FavoriteProductRepository()
+                                      .removeFromFavorites(
+                                    widget.product.productId,
+                                    currentUser!.uid,
+                                  );
+                                  message = "Hủy yêu thích thành công";
+                                } else {
+                                  await FavoriteProductRepository()
+                                      .addToFavorites(
+                                    widget.product.productId,
+                                    currentUser!.uid,
+                                  );
+                                  message = "Yêu thích thành công";
+                                }
+                              } catch (error) {
+                                message = "Failed to perform operation: $error";
+                              }
+
+                              // Hiển thị thông báo thành công hoặc thất bại
+                              showDialog(
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return AlertDialog(
+                                    title: Text("Thông báo"),
+                                    content: Text(message),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () {
+                                          Navigator.pop(
+                                              context); // Đóng hộp thoại
+                                          // Nếu thao tác thành công, reload lại trang
+                                          if (message.contains("thành công")) {
+                                            // Thực hiện reload lại trang ở đây
+                                            Navigator.pushReplacement(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (context) =>
+                                                    HomePage(),
+                                              ),
+                                            );
+                                          }
+                                        },
+                                        child: Text("OK"),
+                                      ),
+                                    ],
+                                  );
+                                },
+                              );
+
+                              // Cập nhật trạng thái của biểu tượng yêu thích
+                              isFavorite.value = !isFavorite.value;
+                            },
+                            child: Container(
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(
+                                isFavorite.value
+                                    ? Icons.favorite
+                                    : Icons.favorite_border,
+                                color: isFavorite.value
+                                    ? Colors.red
+                                    : Colors.black,
+                                size: 40,
+                              ),
+                            ),
+                          )),
                     ],
                   ),
                 ),
@@ -219,6 +267,7 @@ class _ItemWidgetState extends State<ItemWidget> {
                     builder: (context) => ProductDetailsView(
                       productId: widget.product.productId,
                       productRepository: ProductRepository(),
+                      cartRepository: cartRepository,
                     ),
                   ),
                 );
@@ -248,8 +297,7 @@ class _ItemWidgetState extends State<ItemWidget> {
                           onPressed: () {
                             showModalBottomSheet(
                               context: context,
-                              isScrollControlled:
-                                  true, // Đặt isScrollControlled thành true
+                              isScrollControlled: true,
                               builder: (BuildContext context) {
                                 return FractionallySizedBox(
                                   heightFactor: 0.7,
@@ -260,7 +308,13 @@ class _ItemWidgetState extends State<ItemWidget> {
                                   ),
                                 );
                               },
-                            );
+                            ).then((value) {
+                              Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => HomePage()),
+                              );
+                            });
                           },
                           icon: Icon(Icons.add_shopping_cart_rounded),
                           color: Colors.white,

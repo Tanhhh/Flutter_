@@ -79,10 +79,45 @@ class ProductRepository {
         productSizes.add(sizeProduct.name);
       }
 
+      // Sắp xếp danh sách kích thước
+      productSizes.sort((a, b) {
+        // Kiểm tra nếu cả hai đều là số
+        bool isANumeric = isNumeric(a);
+        bool isBNumeric = isNumeric(b);
+
+        // Nếu cả hai đều không phải số, sắp xếp theo bảng size
+        if (!isANumeric && !isBNumeric) {
+          return sizeOrder.indexOf(a) - sizeOrder.indexOf(b);
+        }
+        // Nếu chỉ có a là số
+        else if (!isANumeric) {
+          return -1; // Đặt a trước b
+        }
+        // Nếu chỉ có b là số
+        else if (!isBNumeric) {
+          return 1; // Đặt b trước a
+        }
+        // Nếu cả hai đều là số, sắp xếp theo thứ tự số
+        else {
+          return int.parse(a).compareTo(int.parse(b));
+        }
+      });
+
       return productSizes;
     } catch (e) {
       print('Error getting product sizes: $e');
       return []; // Trả về danh sách rỗng nếu có lỗi
     }
+  }
+
+// Danh sách thứ tự size
+  List<String> sizeOrder = ['S', 'M', 'L', 'XL', 'XXL', 'XXXL'];
+
+// Hàm kiểm tra xem một chuỗi có phải là số hay không
+  bool isNumeric(String s) {
+    if (s == '') {
+      return false;
+    }
+    return double.tryParse(s) != null;
   }
 }

@@ -4,7 +4,7 @@ class AvailableSizeProduct {
   final String? id;
   final String productId;
   final String sizeProductId;
-  final int quantity;
+  int quantity;
 
   AvailableSizeProduct({
     required this.id,
@@ -12,6 +12,7 @@ class AvailableSizeProduct {
     required this.sizeProductId,
     required this.quantity,
   });
+
   factory AvailableSizeProduct.fromDocument(DocumentSnapshot doc) {
     return AvailableSizeProduct(
       id: doc.id,
@@ -19,5 +20,15 @@ class AvailableSizeProduct {
       sizeProductId: doc['sizeProductId'],
       quantity: doc['quantity'],
     );
+  }
+
+  // Định nghĩa phương thức toJson() để chuyển đổi đối tượng thành Map
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'productId': productId,
+      'sizeProductId': sizeProductId,
+      'quantity': quantity,
+    };
   }
 }

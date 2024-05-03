@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_ltdddoan/model/product_model.dart';
 import 'package:flutter_ltdddoan/page/Cart/provider/cart.dart';
 import 'package:flutter_ltdddoan/page/home/home.page.dart';
+import 'package:flutter_ltdddoan/page/product/provider/favoriteproduct_get.dart';
 import 'package:flutter_ltdddoan/page/product/provider/productquantity_get.dart';
 import 'package:flutter_ltdddoan/page/product/provider/size_get.dart';
 import 'package:flutter_ltdddoan/page/product/widget/size_button_dart';
@@ -11,9 +12,9 @@ import 'package:flutter_ltdddoan/repositories/products/favorite_product.dart';
 import 'package:flutter_ltdddoan/repositories/products/product_detail.dart';
 import 'package:intl/intl.dart';
 import 'package:carousel_slider/carousel_slider.dart';
-import './view_full1image.dart';
 import 'package:get/get.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import '../widget/view_fullimages.dart';
 
 class ProductDetailsViewBottom extends StatefulWidget {
   final String productId;
@@ -35,7 +36,8 @@ class ProductDetailsViewBottom extends StatefulWidget {
 class _ProductDetailsViewBottomState extends State<ProductDetailsViewBottom> {
   final QuantityController _quantityController = Get.put(QuantityController());
   final SizeController _sizeController = Get.put(SizeController());
-  bool isFavorite = false;
+  final FavoriteController _favoriteController = Get.put(FavoriteController());
+
   User? currentUser;
 
   @override
@@ -48,11 +50,12 @@ class _ProductDetailsViewBottomState extends State<ProductDetailsViewBottom> {
   }
 
   Future<void> checkFavoriteStatus() async {
-    if (currentUser == null) return;
+    if (currentUser == null || !mounted) return;
     bool favoriteStatus = await FavoriteProductRepository()
         .isProductFavorite(widget.productId, currentUser!.uid);
+    if (!mounted) return;
     setState(() {
-      isFavorite = favoriteStatus;
+      _favoriteController.isFavorite.value = favoriteStatus;
     });
   }
 
@@ -101,6 +104,7 @@ class _ProductDetailsViewBottomState extends State<ProductDetailsViewBottom> {
                               child: Column(
                                 children: [
                                   Container(
+                                    color: Color(0xFFF1F4FB),
                                     height: MediaQuery.of(context).size.height *
                                         .32,
                                     padding: const EdgeInsets.only(bottom: 30),
@@ -118,8 +122,10 @@ class _ProductDetailsViewBottomState extends State<ProductDetailsViewBottom> {
                                                       context,
                                                       MaterialPageRoute(
                                                         builder: (context) =>
-                                                            SingleImagePage(
-                                                          imageUrl: imageUrl,
+                                                            FullScreenImage(
+                                                          imageUrls:
+                                                              product.imageUrls,
+                                                          initialIndex: 0,
                                                         ),
                                                       ),
                                                     );
@@ -144,7 +150,7 @@ class _ProductDetailsViewBottomState extends State<ProductDetailsViewBottom> {
                                           ),
                                         ),
                                         Positioned(
-                                          top: 50,
+                                          top: 100,
                                           right: 30,
                                           child: Icon(
                                             Icons.arrow_forward_ios,
@@ -156,7 +162,7 @@ class _ProductDetailsViewBottomState extends State<ProductDetailsViewBottom> {
                                     ),
                                   ),
                                   Container(
-                                    height: 1000,
+                                    height: 350,
                                     padding: const EdgeInsets.all(16),
                                     decoration: const BoxDecoration(
                                       color: Colors.white,
@@ -309,9 +315,12 @@ class _ProductDetailsViewBottomState extends State<ProductDetailsViewBottom> {
                                     Expanded(
                                       flex: 8,
                                       child: Padding(
-                                        padding: EdgeInsets.only(left: 8.0),
+                                        padding: EdgeInsets.only(
+                                            left: 20.0,
+                                            right: 20.0,
+                                            bottom: 10),
                                         child: ElevatedButton(
-                                          onPressed: () {
+                                          onPressed: () async {
                                             if (_sizeController.selectedSize
                                                 .value.isNotEmpty) {
                                               widget.cartRepository.addToCart(
@@ -321,9 +330,18 @@ class _ProductDetailsViewBottomState extends State<ProductDetailsViewBottom> {
                                                 quantity: _quantityController
                                                     .quantity.value,
                                               );
-                                              setState(() {});
-
+                                              ScaffoldMessenger.of(context)
+                                                  .showSnackBar(SnackBar(
+                                                content: Text(
+                                                    'Đã thêm vào giỏ hàng'),
+                                                duration: Duration(seconds: 1),
+                                              ));
+                                              await Future.delayed(
+                                                  Duration(seconds: 2));
+                                              Navigator.pop(
+                                                  context); // Đóng modal
                                               Navigator.pushReplacement(
+                                                // Load lại trang
                                                 context,
                                                 MaterialPageRoute(
                                                   builder:
@@ -337,6 +355,8 @@ class _ProductDetailsViewBottomState extends State<ProductDetailsViewBottom> {
                                                 SnackBar(
                                                   content:
                                                       Text('Hãy chọn size'),
+                                                  duration:
+                                                      Duration(seconds: 1),
                                                 ),
                                               );
                                             }
@@ -358,8 +378,9 @@ class _ProductDetailsViewBottomState extends State<ProductDetailsViewBottom> {
                                               Text(
                                                 'Thêm vào giỏ hàng',
                                                 style: TextStyle(
-                                                    color: Colors.white,
-                                                    fontSize: 15),
+                                                  color: Colors.white,
+                                                  fontSize: 15,
+                                                ),
                                               ),
                                             ],
                                           ),
@@ -371,36 +392,48 @@ class _ProductDetailsViewBottomState extends State<ProductDetailsViewBottom> {
                                       flex: 1,
                                       child: InkWell(
                                         onTap: () async {
-                                          if (isFavorite) {
-                                            await FavoriteProductRepository()
-                                                .removeFromFavorites(
-                                                    widget.productId,
-                                                    currentUser!.uid);
+                                          if (currentUser != null) {
+                                            _favoriteController
+                                                .toggleFavorite(); // Thay đổi trạng thái của nút yêu thích
+                                            if (_favoriteController
+                                                .isFavorite.value) {
+                                              await FavoriteProductRepository()
+                                                  .addToFavorites(
+                                                      widget.productId,
+                                                      currentUser!.uid);
+                                            } else {
+                                              await FavoriteProductRepository()
+                                                  .removeFromFavorites(
+                                                      widget.productId,
+                                                      currentUser!.uid);
+                                            }
                                           } else {
-                                            await FavoriteProductRepository()
-                                                .addToFavorites(
-                                                    widget.productId,
-                                                    currentUser!.uid);
+                                            ScaffoldMessenger.of(context)
+                                                .showSnackBar(
+                                              SnackBar(
+                                                content: Text(
+                                                    'Bạn cần đăng nhập để thêm sản phẩm vào danh sách yêu thích'),
+                                                duration: Duration(seconds: 1),
+                                              ),
+                                            );
                                           }
-                                          // Cập nhật trạng thái của biểu tượng yêu thích
-                                          setState(() {
-                                            isFavorite = !isFavorite;
-                                          });
                                         },
-                                        child: Container(
-                                          decoration: BoxDecoration(
-                                            shape: BoxShape.circle,
-                                          ),
-                                          child: Icon(
-                                            isFavorite
-                                                ? Icons.favorite
-                                                : Icons.favorite_border,
-                                            color: isFavorite
-                                                ? Colors.red
-                                                : Colors.black,
-                                            size: 40,
-                                          ),
-                                        ),
+                                        child: Obx(() => Container(
+                                              decoration: BoxDecoration(
+                                                shape: BoxShape.circle,
+                                              ),
+                                              child: Icon(
+                                                _favoriteController
+                                                        .isFavorite.value
+                                                    ? Icons.favorite
+                                                    : Icons.favorite_border,
+                                                color: _favoriteController
+                                                        .isFavorite.value
+                                                    ? Colors.red
+                                                    : Colors.black,
+                                                size: 40,
+                                              ),
+                                            )),
                                       ),
                                     ),
                                   ],

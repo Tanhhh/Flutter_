@@ -26,6 +26,8 @@ dependencies:
   firebase_app_check: ^0.2.2+2
   provider: ^6.1.2
   carousel_slider: ^4.2.1
+  dvhcvn: ^2.0.20240501
+  get: ^4.6.6
 
 
 dev_dependencies:

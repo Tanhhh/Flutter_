@@ -1,17 +1,25 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_ltdddoan/page/Address/edit_address.dart';
+
+typedef OnAddressUpdated = void Function(String customerAddressId);
 
 class SingleAddress extends StatelessWidget {
   const SingleAddress({
-    super.key,
+    Key? key,
     required this.selectedAddress,
     required this.name,
     required this.phone,
     required this.addressNote,
-  });
+    required this.customerAddressId,
+    required this.onAddressUpdated,
+  }) : super(key: key);
+
   final bool selectedAddress;
   final String name;
   final String phone;
   final String addressNote;
+  final String customerAddressId;
+  final OnAddressUpdated onAddressUpdated;
 
   @override
   Widget build(BuildContext context) {
@@ -32,7 +40,7 @@ class SingleAddress extends StatelessWidget {
               ),
               GestureDetector(
                 onTap: () {
-                  // Xử lý sự kiện khi người dùng nhấp vào văn bản "Chỉnh sửa"
+                  _handleEditAddress(context);
                 },
                 child: Text(
                   'Chỉnh sửa',
@@ -51,5 +59,17 @@ class SingleAddress extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  void _handleEditAddress(BuildContext context) async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => EditAddressScreen(
+          customerAddressId: customerAddressId,
+        ),
+      ),
+    );
+    onAddressUpdated(customerAddressId);
   }
 }

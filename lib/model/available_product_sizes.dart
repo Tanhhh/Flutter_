@@ -3,7 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class AvailableSizeProduct {
   final String? id;
   final String productId;
-  final bool sizeProductId;
+  final String sizeProductId;
   final int quantity;
 
   AvailableSizeProduct({

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_ltdddoan/repositories/auth/user_repository.dart';
 import '../Address/Widgets/Single_address.dart';
 import '../Address/add_new_address.dart';
 import 'package:flutter_ltdddoan/model/customeraddress.dart';
@@ -23,7 +24,12 @@ class _AddressScreenState extends State<AddressScreen> {
 
   void loadAddresses() async {
     AddressRepository repository = AddressRepository();
-    addresses = await repository.getAddresses();
+    String customerId = "";
+    String? userId = UserRepository().getUserAuth()?.uid;
+    if (userId != null) {
+      customerId = userId;
+    }
+    addresses = await repository.getAddressesByCustomerId(customerId);
     setState(() {});
   }
 
@@ -37,6 +43,19 @@ class _AddressScreenState extends State<AddressScreen> {
         selectedAddress = addresses[index];
         Navigator.of(context).pop();
       }
+    });
+  }
+
+  void _handleAddressUpdated(String customerAddressId) async {
+    AddressRepository repository = AddressRepository();
+    String customerId = "";
+    String? userId = UserRepository().getUserAuth()?.uid;
+    if (userId != null) {
+      customerId = userId;
+    }
+    addresses = await repository.getAddressesByCustomerId(customerId);
+    setState(() {
+      addresses = addresses;
     });
   }
 
@@ -81,13 +100,18 @@ class _AddressScreenState extends State<AddressScreen> {
           child: Column(
             children: [
               GestureDetector(
-                onTap: () {
-                  Navigator.push(
+                onTap: () async {
+                  final updatedAddresses = await Navigator.push(
                     context,
                     MaterialPageRoute(
                       builder: (context) => const AddNewAdressScreen(),
                     ),
                   );
+                  if (updatedAddresses != null) {
+                    setState(() {
+                      addresses = updatedAddresses;
+                    });
+                  }
                 },
                 child: Container(
                   margin: const EdgeInsets.all(5.0),
@@ -129,9 +153,12 @@ class _AddressScreenState extends State<AddressScreen> {
                   },
                   child: SingleAddress(
                     selectedAddress: selectedAddressIndex == index,
-                    name: 'Name: ${address.name}',
-                    phone: 'Phone: ${address.phone}',
-                    addressNote: 'Address: ${address.addressNote}',
+                    name: 'Tên: ${address.name}',
+                    phone: 'Điện thoại: ${address.phone}',
+                    addressNote:
+                        'Địa chỉ: ${address.addressNote}, ${address.address}',
+                    customerAddressId: '${address.customerAddressId}',
+                    onAddressUpdated: _handleAddressUpdated,
                   ),
                 );
               }).toList(),

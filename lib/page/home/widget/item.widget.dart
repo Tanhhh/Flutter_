@@ -1,13 +1,13 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_ltdddoan/page/Cart/provider/cart.dart';
+import 'package:flutter_ltdddoan/page/product/widget/addtocartbottom_widget.dart';
 import 'package:flutter_ltdddoan/repositories/products/product_detail.dart';
 import 'package:intl/intl.dart';
 import '../../../model/product_model.dart';
 import '../../product/productdetail.dart';
 import '../../../repositories/auth/user_repository.dart';
 import '../../../repositories/products/favorite_product.dart';
-import '../../product/productdetail.dart';
 
 class ItemWidget extends StatefulWidget {
   final Product product;
@@ -246,18 +246,21 @@ class _ItemWidgetState extends State<ItemWidget> {
                         ),
                         child: IconButton(
                           onPressed: () {
-                            cartRepository.addToCart(
-                                widget.product); // Thêm sản phẩm vào giỏ hàng
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content:
-                                    Text('Sản phẩm đã được thêm vào giỏ hàng.'),
-                                duration: Duration(seconds: 1),
-                              ),
+                            showModalBottomSheet(
+                              context: context,
+                              isScrollControlled:
+                                  true, // Đặt isScrollControlled thành true
+                              builder: (BuildContext context) {
+                                return FractionallySizedBox(
+                                  heightFactor: 0.7,
+                                  child: ProductDetailsViewBottom(
+                                    productId: widget.product.productId,
+                                    productRepository: ProductRepository(),
+                                    cartRepository: CartRepository(),
+                                  ),
+                                );
+                              },
                             );
-                            if (cartRepository.onCartChanged != null) {
-                              cartRepository.onCartChanged!();
-                            }
                           },
                           icon: Icon(Icons.add_shopping_cart_rounded),
                           color: Colors.white,

@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_ltdddoan/page/product/productbottom_bar.dart';
+import 'package:flutter_ltdddoan/page/product/widget/addtocart_widget.dart';
 import 'package:flutter_ltdddoan/page/product/widget/size_button_dart';
 import 'package:flutter_ltdddoan/page/product/widget/view_full1image.dart';
 import 'package:intl/intl.dart';
@@ -104,7 +104,7 @@ class _ProductDetailsViewState extends State<ProductDetailsView> {
                     body: Column(
                       children: [
                         Container(
-                          height: MediaQuery.of(context).size.height * .28,
+                          height: MediaQuery.of(context).size.height * .32,
                           padding: const EdgeInsets.only(bottom: 30),
                           width: double.infinity,
                           child: GestureDetector(
@@ -367,7 +367,7 @@ class _ProductDetailsViewState extends State<ProductDetailsView> {
                         ),
                       ],
                     ),
-                    bottomNavigationBar: ProductDetailsBottom(),
+                    // bottomNavigationBar: ProductDetailsBottom(),
                   );
                 }
               },

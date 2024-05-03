@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_ltdddoan/page/auth/login/login.page.dart';
 import 'package:flutter_ltdddoan/page/auth/register/register.page.dart';
 import 'package:flutter_ltdddoan/page/home/home.page.dart';
+import 'package:flutter_ltdddoan/page/product_category/add_productcategory.dart';
 import 'package:flutter_ltdddoan/page/splash/splash.page.dart';
 import 'package:flutter_ltdddoan/page/splash/splash_v1.page.dart';
 import '../page/customer/profile.dart';
@@ -14,6 +15,7 @@ class Routes {
   static const String login = '/login';
   static const String register = '/register';
   static const String profile = '/profile';
+  static const String addproductcategory = '/addproductcategory';
 
   static final routes = <String, WidgetBuilder>{
     splash: (_) => const SplashPage(),
@@ -22,5 +24,6 @@ class Routes {
     register: (_) => RegisterPage(),
     home: (_) => const HomePage(),
     profile: (_) => UserProfilePage(),
+    addproductcategory: (_) => AddProductCategoryPage(),
   };
 }

@@ -1,5 +1,7 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 class ProductCategory {
-  final String? productCategoryId;
+  String? productCategoryId;
   final String name;
   final bool isActive;
   final String createdBy;
@@ -8,7 +10,7 @@ class ProductCategory {
   final String updatedBy;
 
   ProductCategory({
-    required this.productCategoryId,
+    this.productCategoryId,
     required this.name,
     required this.isActive,
     required this.createdBy,
@@ -16,4 +18,29 @@ class ProductCategory {
     required this.updatedDate,
     required this.updatedBy,
   });
+
+  Map<String, dynamic> toMap() {
+    return {
+      'ProductCategoryId': productCategoryId,
+      'Name': name,
+      'IsActive': isActive,
+      'CreateBy': createdBy,
+      'CreateDate': Timestamp.fromDate(createDate),
+      'UpdatedDate': Timestamp.fromDate(updatedDate),
+      'UpdateBy': updatedBy,
+    };
+  }
+
+  factory ProductCategory.fromDocument(DocumentSnapshot doc) {
+    final data = doc.data() as Map<String, dynamic>;
+    return ProductCategory(
+      productCategoryId: doc.id,
+      name: data['Name'],
+      isActive: data['IsActive'],
+      createdBy: data['CreateBy'],
+      createDate: (data['CreateDate'] as Timestamp).toDate(),
+      updatedDate: (data['UpdatedDate'] as Timestamp).toDate(),
+      updatedBy: data['UpdateBy'],
+    );
+  }
 }

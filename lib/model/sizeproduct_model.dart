@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class SizeProduct {
-  final String? sizeProductId;
+  final String sizeProductId;
   final String name;
   final bool isActive;
   final String createdBy;
@@ -10,7 +10,7 @@ class SizeProduct {
   final String updatedBy;
 
   SizeProduct({
-    this.sizeProductId,
+    required this.sizeProductId,
     required this.name,
     required this.isActive,
     required this.createdBy,

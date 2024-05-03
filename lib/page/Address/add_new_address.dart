@@ -1,23 +1,47 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_ltdddoan/model/customeraddress.dart';
 import 'package:flutter_ltdddoan/repositories/address/address_repository.dart';
 import 'package:flutter_ltdddoan/repositories/auth/user_repository.dart';
+import 'package:provider/provider.dart';
+import 'package:flutter_ltdddoan/model/dvhcvn_model.dart';
+import 'package:dvhcvn/dvhcvn.dart' as dvhcvn;
 
-class AddNewAdressScreen extends StatefulWidget {
+class AddNewAdressScreen extends StatelessWidget {
   const AddNewAdressScreen({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return ChangeNotifierProvider<DvhcvnData>(
+      create: (_) => DvhcvnData(),
+      child: _AddNewAdressScreen(),
+    );
+  }
+}
+
+class _AddNewAdressScreen extends StatefulWidget {
   @override
   _AddNewAdressScreenState createState() => _AddNewAdressScreenState();
 }
 
-class _AddNewAdressScreenState extends State<AddNewAdressScreen> {
+String? selectedTinh;
+String? selectedQuan;
+String? selectedXa;
+
+class _AddNewAdressScreenState extends State<_AddNewAdressScreen> {
   AddressRepository repository = AddressRepository();
   UserRepository userrepository = UserRepository();
-  String? selectedTinh;
-  String? selectedQuan;
-  String? selectedXa;
   TextEditingController nameController = TextEditingController();
   TextEditingController phoneController = TextEditingController();
   TextEditingController addressNoteController = TextEditingController();
+  String customerId = "";
+  String? userId = UserRepository().getUserAuth()?.uid;
+
+  List<TextInputFormatter> phoneNumberInputFormatter = [
+    FilteringTextInputFormatter.digitsOnly,
+    LengthLimitingTextInputFormatter(10),
+  ];
+
   @override
   Widget build(BuildContext context) {
     final leadingWidth = MediaQuery.of(context).size.width / 3;
@@ -88,6 +112,8 @@ class _AddNewAdressScreenState extends State<AddNewAdressScreen> {
                   TextField(
                     controller: phoneController,
                     textAlign: TextAlign.left,
+                    keyboardType: TextInputType.phone,
+                    inputFormatters: phoneNumberInputFormatter,
                     decoration: InputDecoration(
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(15.0),
@@ -106,182 +132,11 @@ class _AddNewAdressScreenState extends State<AddNewAdressScreen> {
                     ),
                   ),
                   SizedBox(height: 10),
-                  DropdownButtonFormField(
-                    value: selectedTinh,
-                    decoration: InputDecoration(
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(15.0),
-                      ),
-                      hintText: 'Chọn tỉnh',
-                      contentPadding: EdgeInsets.only(
-                          left: 30, right: 15, top: 15, bottom: 15),
-                    ),
-                    onChanged: (newValue) {
-                      setState(() {
-                        selectedTinh = newValue;
-                      });
-                    },
-                    items: <String>[
-                      'An Giang',
-                      'Bà Rịa - Vũng Tàu',
-                      'Bắc Giang',
-                      'Bắc Kạn',
-                      'Bạc Liêu',
-                      'Bắc Ninh',
-                      'Bến Tre',
-                      'Bình Định',
-                      'Bình Dương',
-                      'Bình Phước',
-                      'Bình Thuận',
-                      'Cà Mau',
-                      'Cần Thơ',
-                      'Cao Bằng',
-                      'Đà Nẵng',
-                      'Đắk Lắk',
-                      'Đắk Nông',
-                      'Điện Biên',
-                      'Đồng Nai',
-                      'Đồng Tháp',
-                      'Gia Lai',
-                      'Hà Giang',
-                      'Hà Nam',
-                      'Hà Nội',
-                      'Hà Tĩnh',
-                      'Hải Dương',
-                      'Hải Phòng',
-                      'Hậu Giang',
-                      'Hòa Bình',
-                      'Hưng Yên',
-                      'Khánh Hòa',
-                      'Kiên Giang',
-                      'Kon Tum',
-                      'Lai Châu',
-                      'Lâm Đồng',
-                      'Lạng Sơn',
-                      'Lào Cai',
-                      'Long An',
-                      'Nam Định',
-                      'Nghệ An',
-                      'Ninh Bình',
-                      'Ninh Thuận',
-                      'Phú Thọ',
-                      'Quảng Bình',
-                      'Quảng Nam',
-                      'Quảng Ngãi',
-                      'Quảng Ninh',
-                      'Quảng Trị',
-                      'Sóc Trăng',
-                      'Sơn La',
-                      'Tây Ninh',
-                      'Thái Bình',
-                      'Thái Nguyên',
-                      'Thanh Hóa',
-                      'Thừa Thiên Huế',
-                      'Tiền Giang',
-                      'Trà Vinh',
-                      'Tuyên Quang',
-                      'Vĩnh Long',
-                      'Vĩnh Phúc',
-                      'Yên Bái'
-                    ].map<DropdownMenuItem<String>>((String value) {
-                      return DropdownMenuItem<String>(
-                        value: value,
-                        child: Text(value),
-                      );
-                    }).toList(),
-                  ),
+                  Level1(),
                   SizedBox(height: 10),
-                  DropdownButtonFormField(
-                    value: selectedQuan,
-                    decoration: InputDecoration(
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(15.0),
-                      ),
-                      hintText: 'Chọn quận',
-                      contentPadding: EdgeInsets.only(
-                          left: 30, right: 15, top: 15, bottom: 15),
-                    ),
-                    onChanged: (newValue) {
-                      setState(() {
-                        selectedQuan = newValue;
-                      });
-                    },
-                    items: <String>[
-                      'Quận 1',
-                      'Quận 2',
-                      'Quận 3',
-                      'Quận 4',
-                      'Quận 5',
-                      'Quận 6',
-                      'Quận 7',
-                      'Quận 8',
-                      'Quận 9',
-                      'Quận 10',
-                      'Quận 11',
-                      'Quận 12',
-                      'Quận Bình Tân',
-                      'Quận Bình Thạnh',
-                      'Quận Gò Vấp',
-                      'Quận Phú Nhuận',
-                      'Quận Tân Bình',
-                      'Quận Tân Phú',
-                      'Quận Thủ Đức',
-                      'Huyện Bình Chánh',
-                      'Huyện Cần Giờ',
-                      'Huyện Củ Chi',
-                      'Huyện Hóc Môn',
-                      'Huyện Nhà Bè'
-                    ].map<DropdownMenuItem<String>>((String value) {
-                      return DropdownMenuItem<String>(
-                        value: value,
-                        child: Text(value),
-                      );
-                    }).toList(),
-                  ),
+                  Level2(),
                   SizedBox(height: 10),
-                  DropdownButtonFormField(
-                    value: selectedXa,
-                    decoration: InputDecoration(
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(15.0),
-                      ),
-                      hintText: 'Chọn xã',
-                      contentPadding: EdgeInsets.only(
-                          left: 30, right: 15, top: 15, bottom: 15),
-                    ),
-                    onChanged: (newValue) {
-                      setState(() {
-                        selectedXa = newValue;
-                      });
-                    },
-                    items: <String>[
-                      'Xã An Lợi Đông',
-                      'Xã An Lợi Tây',
-                      'Xã An Phú',
-                      'Xã An Phước',
-                      'Xã An Tịnh',
-                      'Xã An Vĩnh Ngãi',
-                      'Xã An Định',
-                      'Xã An Điền',
-                      'Xã An Đông',
-                      'Xã An Đức',
-                      'Xã An Hải',
-                      'Xã An Hòa',
-                      'Xã An Hóa',
-                      'Xã An Hợi Đông',
-                      'Xã An Hợi Tây',
-                      'Xã An Hữu',
-                      'Xã An Khánh',
-                      'Xã An Lạc',
-                      'Xã An Mỹ',
-                      'Xã An Nghĩa'
-                    ].map<DropdownMenuItem<String>>((String value) {
-                      return DropdownMenuItem<String>(
-                        value: value,
-                        child: Text(value),
-                      );
-                    }).toList(),
-                  ),
+                  Level3(),
                   SizedBox(height: 10),
                   TextField(
                     controller: addressNoteController,
@@ -306,18 +161,17 @@ class _AddNewAdressScreenState extends State<AddNewAdressScreen> {
                 if (selectedTinh != null &&
                     selectedQuan != null &&
                     selectedXa != null &&
-                    nameController != null &&
-                    phoneController != null &&
-                    addressNoteController != null) {
+                    nameController.text.isNotEmpty &&
+                    phoneController.text.isNotEmpty &&
+                    addressNoteController.text.isNotEmpty) {
                   DateTime now = DateTime.now();
                   String customerId = "";
-                  String? userId = UserRepository().getUser()?.id;
+                  String? userId = UserRepository().getUserAuth()?.uid;
                   if (userId != null) {
                     customerId = userId;
                   }
                   CustomerAddress newAddress = CustomerAddress(
-                    customerAddressId:
-                        (await repository.getNextAddressId()) ?? '',
+                    customerAddressId: '',
                     name: nameController.text,
                     phone: phoneController.text,
                     address: (selectedXa ?? "") +
@@ -337,7 +191,11 @@ class _AddNewAdressScreenState extends State<AddNewAdressScreen> {
                       duration: Duration(seconds: 2),
                     ),
                   );
-                  Navigator.of(context).pop();
+                  if (userId != null) {
+                    customerId = userId;
+                  }
+                  Navigator.of(context)
+                      .pop(repository.getAddressesByCustomerId(customerId));
                 } else {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
@@ -370,4 +228,199 @@ class _AddNewAdressScreenState extends State<AddNewAdressScreen> {
       ),
     );
   }
+}
+
+class Level1 extends StatelessWidget {
+  @override
+  Widget build(BuildContext _) => Consumer<DvhcvnData>(
+        builder: (context, data, _) => Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(15.0),
+            border: Border.all(color: Colors.black),
+          ),
+          padding: EdgeInsets.only(left: 30, right: 30, top: 15, bottom: 15),
+          child: InkWell(
+            onTap: () => _select1(context, data),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  data.level1?.name ?? 'Chọn tỉnh',
+                  style: TextStyle(
+                      color: data.level1 != null ? Colors.black : Colors.grey),
+                ),
+                Icon(Icons.arrow_drop_down),
+              ],
+            ),
+          ),
+        ),
+      );
+
+  void _select1(BuildContext context, DvhcvnData data) async {
+    final selected = await _select<dvhcvn.Level1>(context, dvhcvn.level1s);
+    if (selected != null) {
+      data.level1 = selected;
+      selectedTinh = selected.name; // Gán giá trị được chọn vào selectedTinh
+    }
+  }
+}
+
+class Level2 extends StatefulWidget {
+  @override
+  _Level2State createState() => _Level2State();
+}
+
+class _Level2State extends State<Level2> {
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    final data = DvhcvnData.of(context);
+    if (data.latestChange == 1) {
+      WidgetsBinding.instance
+          .addPostFrameCallback((_) => _select2(context, data));
+    }
+  }
+
+  @override
+  Widget build(BuildContext _) => Consumer<DvhcvnData>(
+        builder: (context, data, _) => Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(15.0),
+            border: Border.all(color: Colors.black),
+          ),
+          padding: EdgeInsets.only(left: 30, right: 30, top: 15, bottom: 15),
+          child: InkWell(
+            onTap: data.level1 != null ? () => _select2(context, data) : null,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  data.level2?.name ??
+                      (data.level1 != null ? 'Chọn quận' : 'Chọn tỉnh trước'),
+                  style: TextStyle(
+                      color: data.level1 != null ? Colors.black : Colors.grey),
+                ),
+                Icon(Icons.arrow_drop_down),
+              ],
+            ),
+          ),
+        ),
+      );
+
+  void _select2(BuildContext context, DvhcvnData data) async {
+    final level1 = data.level1;
+    if (level1 == null) return;
+
+    final selected = await _select<dvhcvn.Level2>(
+      context,
+      level1.children,
+      header: level1.name,
+    );
+    if (selected != null) {
+      data.level2 = selected;
+      selectedQuan = selected.name;
+    }
+  }
+}
+
+class Level3 extends StatefulWidget {
+  @override
+  _Level3State createState() => _Level3State();
+}
+
+class _Level3State extends State<Level3> {
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    final data = DvhcvnData.of(context);
+    if (data.latestChange == 2) {
+      WidgetsBinding.instance
+          .addPostFrameCallback((_) => _select3(context, data));
+    }
+  }
+
+  @override
+  Widget build(BuildContext _) => Consumer<DvhcvnData>(
+        builder: (context, data, _) => Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(15.0),
+            border: Border.all(color: Colors.black),
+          ),
+          padding: EdgeInsets.only(left: 30, right: 30, top: 15, bottom: 15),
+          child: InkWell(
+            onTap: data.level2 != null ? () => _select3(context, data) : null,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  data.level3?.name ??
+                      (data.level2 != null ? 'Chọn xã' : 'Chọn quận trước'),
+                  style: TextStyle(
+                      color: data.level2 != null ? Colors.black : Colors.grey),
+                ),
+                Icon(Icons.arrow_drop_down),
+              ],
+            ),
+          ),
+        ),
+      );
+
+  void _select3(BuildContext context, DvhcvnData data) async {
+    final level2 = data.level2;
+    if (level2 == null) return;
+
+    final selected = await _select<dvhcvn.Level3>(
+      context,
+      level2.children,
+      header: level2.name,
+    );
+    if (selected != null) {
+      data.level3 = selected;
+      selectedXa = selected.name;
+    }
+  }
+}
+
+Future<T?> _select<T extends dvhcvn.Entity>(
+  BuildContext context,
+  List<T> list, {
+  String header = "",
+}) async {
+  return await showModalBottomSheet<T?>(
+    context: context,
+    builder: (_) => Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        // header (if provided)
+        if (header.isNotEmpty)
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Text(
+              header,
+              style: Theme.of(context).textTheme.headline6,
+            ),
+          ),
+        if (header.isNotEmpty) Divider(),
+
+        // entities
+        Expanded(
+          child: ListView.builder(
+            shrinkWrap: true,
+            itemBuilder: (itemContext, i) {
+              final item = list[i];
+              return ListTile(
+                title: Text(item.name),
+                subtitle: Text('#${item.id}, ${item.typeAsString}'),
+                onTap: () => Navigator.of(itemContext).pop(item),
+              );
+            },
+            itemCount: list.length,
+          ),
+        ),
+      ],
+    ),
+  );
 }

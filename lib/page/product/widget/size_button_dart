@@ -14,7 +14,7 @@ class SizeButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Color buttonColor = isTapped ? Colors.purple : Color(0xFFF1F4FB);
+    Color buttonColor = isTapped ? Color(0xFF6342E8) : Color(0xFFF1F4FB);
     Color textColor = isTapped ? Colors.white : Colors.black;
 
     return Padding(

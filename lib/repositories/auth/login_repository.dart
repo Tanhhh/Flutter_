@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter_ltdddoan/page/Cart/provider/cart.dart';
 import '../../page/home/home.page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../../model/customer_model.dart';
@@ -49,7 +50,7 @@ Future<void> loginUserWithEmailAndPassword(
     if (userSnapshot.exists &&
         (userSnapshot.data() as Map<String, dynamic>)['customerId'] ==
             userUID) {
-      // Hiển thị thông báo đăng nhập thành công và chuyển hướng người dùng đến trang chính
+      await CartRepository().clearCartItems();
       showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -60,12 +61,7 @@ Future<void> loginUserWithEmailAndPassword(
               TextButton(
                 onPressed: () {
                   Navigator.of(context).pop();
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => HomePage(),
-                    ),
-                  );
+                  Navigator.pushReplacementNamed(context, '/home');
                 },
                 child: Text('Đóng'),
               ),

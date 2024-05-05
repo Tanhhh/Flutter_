@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_ltdddoan/model/product_model.dart';
 import 'package:flutter_ltdddoan/page/favorite_product/widget/item_list.dart';
+import 'package:flutter_ltdddoan/page/home/home.page.dart';
 import 'package:flutter_ltdddoan/repositories/auth/user_repository.dart';
 import 'package:flutter_ltdddoan/repositories/products/favorite_product.dart';
 
@@ -14,6 +15,7 @@ class _FavoritePageState extends State<FavoritePage> {
   int favoriteProductCount = 0;
   User? currentUser;
   List<Product>? favoriteProducts;
+  bool isLoading = true;
 
   @override
   void initState() {
@@ -46,6 +48,7 @@ class _FavoritePageState extends State<FavoritePage> {
         await favoriteProductRepository.getFavoriteProducts(customerId).first;
     setState(() {
       favoriteProducts = products;
+      isLoading = false;
     });
   }
 
@@ -64,26 +67,40 @@ class _FavoritePageState extends State<FavoritePage> {
             fontWeight: FontWeight.w700,
           ),
         ),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.pushReplacementNamed(context, '/home');
+          },
+        ),
       ),
       body: Padding(
         padding: EdgeInsets.all(15),
-        child: Container(
-          height: MediaQuery.of(context).size.height -
-              kToolbarHeight -
-              30, // Giới hạn chiều cao của ListView
-          child: favoriteProducts != null
-              ? ListView.builder(
-                  itemCount: favoriteProducts!.length,
-                  itemBuilder: (context, index) {
-                    return ItemFavorite(
-                      customerId: currentUser!.uid,
-                      product: favoriteProducts![
-                          index], // Truyền từng sản phẩm vào ItemFavorite
-                    );
-                  },
-                )
-              : Center(child: CircularProgressIndicator()),
-        ),
+        child: isLoading
+            ? Center(child: CircularProgressIndicator())
+            : favoriteProducts != null && favoriteProducts!.isNotEmpty
+                ? Container(
+                    height: MediaQuery.of(context).size.height -
+                        kToolbarHeight -
+                        30, // Giới hạn chiều cao của ListView
+                    child: ListView.builder(
+                      itemCount: favoriteProducts!.length,
+                      itemBuilder: (context, index) {
+                        return ItemFavorite(
+                          customerId: currentUser!.uid,
+                          product: favoriteProducts![index],
+                          favoriteProductRepository:
+                              FavoriteProductRepository(),
+                        );
+                      },
+                    ),
+                  )
+                : Center(
+                    child: Text(
+                      "Chưa có sản phẩm nào trong danh sách yêu thích.",
+                      style: TextStyle(fontSize: 16),
+                    ),
+                  ),
       ),
     );
   }

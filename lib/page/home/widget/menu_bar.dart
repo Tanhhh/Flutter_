@@ -1,19 +1,53 @@
 import 'package:flutter/material.dart';
-import '../../customer/profile.dart';
-import '../../order_customer/order_listitem.dart';
+import 'package:flutter_ltdddoan/page/Cart/provider/cart.dart';
+import 'package:provider/provider.dart';
 import '../../../repositories/auth/user_repository.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../../model/customer_model.dart';
-import '../../auth/login/login.page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class MenuBarRight extends StatelessWidget {
-  void _handleLogout(BuildContext context) {
-    UserRepository().clearUserAuth();
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => LoginPage()),
-    );
+  void _handleLogout(BuildContext context) async {
+    try {
+      // Tạo một CartRepository mới
+      CartRepository cartRepository = CartRepository();
+
+      // Xóa dữ liệu giỏ hàng
+      await cartRepository.clearCartItems();
+      print(cartRepository.cartItems.length);
+
+      // Cập nhật giá trị của CartRepository bằng cách thay thế value hiện tại
+      Provider.of<CartRepository>(context, listen: false).value =
+          cartRepository;
+
+      // Xóa thông tin xác thực người dùng
+      UserRepository().clearUserAuth();
+
+      // Đóng các màn hình hiện tại và chuyển hướng đến màn hình đăng nhập
+      Navigator.of(context).popUntil((route) => route.isFirst);
+      Navigator.pushReplacementNamed(context, '/login');
+    } catch (e) {
+      print('Error logging out: $e');
+      String errorMessage = 'Đã xảy ra lỗi khi đăng xuất';
+
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('Thông báo'),
+            content: Text(errorMessage),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: Text('Đóng'),
+              ),
+            ],
+          );
+        },
+      );
+    }
   }
 
   void _confirmLogout(BuildContext context) {
@@ -135,13 +169,8 @@ class MenuBarRight extends StatelessWidget {
                         color: Colors.black,
                       ),
                     ),
-                    onTap: () => {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => UserProfilePage()),
-                      )
-                    },
+                    onTap: () =>
+                        {Navigator.pushReplacementNamed(context, '/profile')},
                   ),
                   ListTile(
                       leading: Icon(
@@ -155,11 +184,7 @@ class MenuBarRight extends StatelessWidget {
                         ),
                       ),
                       onTap: () => {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => MyOrderScreen()),
-                            )
+                            Navigator.pushReplacementNamed(context, '/myOrder')
                           }),
                   ListTile(
                     leading: Icon(

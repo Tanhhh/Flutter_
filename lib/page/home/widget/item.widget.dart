@@ -304,7 +304,7 @@ class _ItemWidgetState extends State<ItemWidget> {
                                   child: ProductDetailsViewBottom(
                                     productId: widget.product.productId,
                                     productRepository: ProductRepository(),
-                                    cartRepository: CartRepository(),
+                                    cartRepository: cartRepository,
                                   ),
                                 );
                               },

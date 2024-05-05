@@ -74,6 +74,11 @@ class FavoriteProductRepository {
       List<String> productIds =
           snapshot.docs.map((doc) => doc['productId'] as String).toList();
 
+      // Nếu danh sách sản phẩm rỗng, trả về danh sách sản phẩm trống
+      if (productIds.isEmpty) {
+        return [];
+      }
+
       // Lấy các sản phẩm từ collection 'products' dựa trên danh sách productId
       QuerySnapshot productsSnapshot = await FirebaseFirestore.instance
           .collection('products')

@@ -94,14 +94,8 @@ class _ProductDetailsViewState extends State<ProductDetailsView> {
                       elevation: 0,
                       leading: IconButton(
                         onPressed: () {
-                          Navigator.pop(context); // Đóng modal
-                          Navigator.pushReplacement(
-                            // Load lại trang
-                            context,
-                            MaterialPageRoute(
-                              builder: (BuildContext context) => HomePage(),
-                            ),
-                          );
+                          Navigator.pop(context);
+                          Navigator.pushReplacementNamed(context, '/home');
                         },
                         icon: const Icon(
                           Icons.arrow_back,
@@ -432,15 +426,8 @@ class _ProductDetailsViewState extends State<ProductDetailsView> {
                                                     Duration(seconds: 2));
                                                 Navigator.pop(
                                                     context); // Đóng modal
-                                                Navigator.pushReplacement(
-                                                  // Load lại trang
-                                                  context,
-                                                  MaterialPageRoute(
-                                                    builder: (BuildContext
-                                                            context) =>
-                                                        HomePage(),
-                                                  ),
-                                                );
+                                                Navigator.pushReplacementNamed(
+                                                    context, '/home');
                                               } else {
                                                 ScaffoldMessenger.of(context)
                                                     .showSnackBar(

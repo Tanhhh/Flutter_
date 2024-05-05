@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../home/home.page.dart';
 
 class MyOrderScreen extends StatelessWidget {
   @override
@@ -15,11 +14,7 @@ class MyOrderScreen extends StatelessWidget {
             icon: Icon(Icons.arrow_back),
             color: Color(0xFF4C54A5),
             onPressed: () {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    builder: (BuildContext context) => HomePage()),
-              );
+              Navigator.pushReplacementNamed(context, '/home');
             },
           ),
           bottom: TabBar(

@@ -40,10 +40,7 @@ class _ParentWidgetState extends State<UserProfilePage> {
         backgroundColor: Colors.white30,
         leading: IconButton(
           onPressed: () {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (BuildContext context) => HomePage()),
-            );
+            Navigator.pushReplacementNamed(context, '/home');
           },
           icon: Icon(Icons.arrow_back),
           color: Color(0xFF4C54A5),

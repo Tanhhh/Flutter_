@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_ltdddoan/gen/assets.gen.dart';
 import 'package:flutter_ltdddoan/page/Cart/provider/cart.dart';
-import 'package:flutter_ltdddoan/page/favorite_product/favoriteproduct_page.dart';
 import 'package:flutter_ltdddoan/page/home/widget/icon.widget.dart';
 import 'package:flutter_ltdddoan/page/home/widget/menu_bar.dart';
+import 'package:provider/provider.dart';
 import '../../Cart/Cartpage.dart';
 import '../../search/SearchItem.dart';
 
@@ -48,11 +48,10 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                 total: '5',
               ),
               IconWidget(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => Cartpage()),
-                  );
+                onTap: () async {
+                  // Thực hiện việc chuyển đến trang giỏ hàng
+                  await Navigator.pushNamed(context, '/cart');
+          
                 },
                 iconPath: Assets.images.cartIcon.path,
                 isHaveCount: true,
@@ -66,11 +65,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                   } else {
                     return IconWidget(
                       onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => FavoritePage()),
-                        );
+                        Navigator.pushReplacementNamed(context, '/favorite');
                       },
                       iconPath: Assets.images.fav.path,
                       isHaveCount: true,

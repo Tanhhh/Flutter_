@@ -1,7 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_ltdddoan/page/Cart/provider/cart.dart';
-import 'package:flutter_ltdddoan/page/home/home.page.dart';
 import 'package:flutter_ltdddoan/page/product/provider/favoriteproduct_get.dart';
 import 'package:flutter_ltdddoan/page/product/provider/productquantity_get.dart';
 import 'package:flutter_ltdddoan/page/product/provider/size_get.dart';
@@ -12,6 +11,7 @@ import 'package:flutter_ltdddoan/repositories/auth/user_repository.dart';
 import 'package:flutter_ltdddoan/repositories/products/favorite_product.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import '../../model/product_model.dart';
 import '../../repositories/products/product_detail.dart';
 import 'package:carousel_slider/carousel_slider.dart';
@@ -21,13 +21,11 @@ import 'package:firebase_auth/firebase_auth.dart';
 class ProductDetailsView extends StatefulWidget {
   final String productId;
   final ProductRepository productRepository;
-  final CartRepository cartRepository;
 
   ProductDetailsView({
     Key? key,
     required this.productId,
     required this.productRepository,
-    required this.cartRepository,
   }) : super(key: key);
 
   @override
@@ -60,6 +58,8 @@ class _ProductDetailsViewState extends State<ProductDetailsView> {
 
   @override
   Widget build(BuildContext context) {
+        final cartRepository = Provider.of<CartRepository>(context, listen: false);
+
     return FutureBuilder<Product?>(
       future: widget.productRepository.getProductById(widget.productId),
       builder: (context, snapshot) {
@@ -408,7 +408,7 @@ class _ProductDetailsViewState extends State<ProductDetailsView> {
                                             onPressed: () async {
                                               if (_sizeController.selectedSize
                                                   .value.isNotEmpty) {
-                                                widget.cartRepository.addToCart(
+                                               cartRepository.addToCart(
                                                   productId: widget.productId,
                                                   sizeName: _sizeController
                                                       .selectedSize.value,

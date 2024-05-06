@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_ltdddoan/page/Cart/provider/cart.dart';
+import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 import 'firebase_options.dart';
 import 'package:flutter_ltdddoan/routes/routes.dart';
@@ -24,7 +25,7 @@ class Myapp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return GetMaterialApp(
       routes: Routes.routes,
       initialRoute: Routes.splash,
       debugShowCheckedModeBanner: false,

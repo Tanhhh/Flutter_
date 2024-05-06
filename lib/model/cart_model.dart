@@ -1,6 +1,6 @@
 class Cart {
-  final String productName;
-  final String sizeName;
+  String productName;
+  String sizeName;
   int quantity;
   double price;
   String image;

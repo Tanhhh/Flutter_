@@ -14,18 +14,17 @@ import 'package:intl/intl.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:get/get.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:provider/provider.dart';
 import '../widget/view_fullimages.dart';
 
 class ProductDetailsViewBottom extends StatefulWidget {
   final String productId;
   final ProductRepository productRepository;
-  final CartRepository cartRepository;
 
   ProductDetailsViewBottom({
     Key? key,
     required this.productId,
     required this.productRepository,
-    required this.cartRepository,
   }) : super(key: key);
 
   @override
@@ -54,13 +53,14 @@ class _ProductDetailsViewBottomState extends State<ProductDetailsViewBottom> {
     bool favoriteStatus = await FavoriteProductRepository()
         .isProductFavorite(widget.productId, currentUser!.uid);
     if (!mounted) return;
-    setState(() {
-      _favoriteController.isFavorite.value = favoriteStatus;
-    });
+    _favoriteController.isFavorite.value = favoriteStatus;
+    _favoriteController.update(); // Cập nhật trạng thái sử dụng GetX
   }
 
   @override
   Widget build(BuildContext context) {
+    final cartRepository = Provider.of<CartRepository>(context, listen: false);
+
     return Scaffold(
       body: DraggableScrollableSheet(
         initialChildSize: 0.98,
@@ -323,7 +323,7 @@ class _ProductDetailsViewBottomState extends State<ProductDetailsViewBottom> {
                                           onPressed: () async {
                                             if (_sizeController.selectedSize
                                                 .value.isNotEmpty) {
-                                              widget.cartRepository.addToCart(
+                                              cartRepository.addToCart(
                                                 productId: widget.productId,
                                                 sizeName: _sizeController
                                                     .selectedSize.value,

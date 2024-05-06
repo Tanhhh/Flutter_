@@ -23,6 +23,9 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cartRepository = Provider.of<CartRepository>(context, listen: false);
+    final itemCount = cartRepository.cartItems.length;
+
     return AppBar(
       leadingWidth: 100,
       leading: const Padding(
@@ -51,11 +54,10 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                 onTap: () async {
                   // Thực hiện việc chuyển đến trang giỏ hàng
                   await Navigator.pushNamed(context, '/cart');
-          
                 },
                 iconPath: Assets.images.cartIcon.path,
                 isHaveCount: true,
-                total: '${cartRepository.itemCount}',
+                total: '${itemCount}',
               ),
               FutureBuilder<int>(
                 future: favoriteProductCount,

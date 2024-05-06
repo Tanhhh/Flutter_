@@ -3,6 +3,7 @@ import 'package:flutter_ltdddoan/page/Cart/Cartitem.dart';
 import 'package:flutter_ltdddoan/page/Cart/cartbottomBar.dart';
 
 import 'package:flutter_ltdddoan/page/Cart/provider/cart.dart'; // Import CartRepository
+import 'package:flutter_ltdddoan/page/home/widget/item.widget.dart';
 import 'package:provider/provider.dart';
 
 class Cartpage extends StatelessWidget {
@@ -10,9 +11,6 @@ class Cartpage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    
-    final cartRepository = Provider.of<CartRepository>(context, listen: false);
-
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white,
@@ -38,63 +36,51 @@ class Cartpage extends StatelessWidget {
             SizedBox(
               width: 5,
             ),
-            FutureBuilder<void>(
-              future: cartRepository.loadCartItems(),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return CircularProgressIndicator();
-                } else {
-                  final itemCount = cartRepository.cartItems.length;
-                  return Text(
-                    "($itemCount)",
-                    style: TextStyle(
-                      color: Colors.black,
-                      fontSize: 20,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  );
-                }
+            Consumer<CartRepository>(
+              builder: (context, cart, child) {
+                final itemCount = cart.itemCount;
+                return Text(
+                  "($itemCount)",
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 20,
+                    fontWeight: FontWeight.w700,
+                  ),
+                );
               },
             ),
           ],
         ),
       ),
-      body: FutureBuilder<void>(
-        future: cartRepository.loadCartItems(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
+      body: Consumer<CartRepository>(
+        builder: (context, cart, child) {
+          if (cart.cartItems.isEmpty) {
+            return Center(
+              child: Text(
+                'Không có sản phẩm trong giỏ hàng',
+                style: TextStyle(fontSize: 18),
+              ),
+            );
           } else {
-            if (cartRepository.cartItems.isEmpty) {
-              return Center(
-                child: Text(
-                  'Không có sản phẩm trong giỏ hàng',
-                  style: TextStyle(fontSize: 18),
+            return Padding(
+              padding: EdgeInsets.all(15),
+              child: Container(
+                padding: EdgeInsets.all(16),
+                child: ListView.builder(
+                  itemCount: cart.itemCount,
+                  itemBuilder: (context, index) {
+                    final product = cart.cartItems[index];
+                    return Cartitem(
+                      imageUrl: product.image,
+                      productName: product.productName,
+                      defaultPrice: product.price,
+                      initialQuantity: product.quantity,
+                      sizeName: product.sizeName,
+                    );
+                  },
                 ),
-              );
-            } else {
-              final itemCount = cartRepository.cartItems.length;
-              return Padding(
-                padding: EdgeInsets.all(15),
-                child: Container(
-                  padding: EdgeInsets.all(16),
-                  child: ListView.builder(
-                    itemCount: itemCount,
-                    itemBuilder: (context, index) {
-                      final product = cartRepository.cartItems[index];
-                      return Cartitem(
-                        imageUrl: product.image,
-                        productName: product.productName,
-                        price: product.price,
-                        quantity: product.quantity,
-                        sizeName: product.sizeName,
-                        cartRepository: cartRepository,
-                      );
-                    },
-                  ),
-                ),
-              );
-            }
+              ),
+            );
           }
         },
       ),

@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_ltdddoan/model/product_model.dart';
-import 'package:flutter_ltdddoan/page/favorite_product/favoriteproduct_page.dart';
-import 'package:flutter_ltdddoan/page/home/widget/item.widget.dart';
 import 'package:flutter_ltdddoan/page/product/productdetail.dart';
 import 'package:flutter_ltdddoan/repositories/products/favorite_product.dart';
 import 'package:flutter_ltdddoan/repositories/products/product_detail.dart';
@@ -220,7 +218,6 @@ class ItemFavorite extends StatelessWidget {
                           builder: (context) => ProductDetailsView(
                             productId: product.productId,
                             productRepository: ProductRepository(),
-                            cartRepository: cartRepository,
                           ),
                         ),
                       );

@@ -2,11 +2,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_ltdddoan/model/cart_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'dart:convert';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 
 class CartRepository extends ChangeNotifier {
-  List<Cart> _cartItems = [];
+  final List<Cart> _cartItems = [];
   List<Cart> get cartItems => _cartItems;
 
   // Thêm trường value
@@ -21,24 +20,6 @@ class CartRepository extends ChangeNotifier {
   }
 
   static const String cartItemsKey = 'cartItems';
-  Future<void> _saveCartItems() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    // Chuyển đổi danh sách sản phẩm thành danh sách chuỗi JSON
-    List<String> cartItemsJson =
-        _cartItems.map((item) => jsonEncode(item.toJson())).toList();
-    // Lưu danh sách sản phẩm vào SharedPreferences
-    await prefs.setStringList(cartItemsKey, cartItemsJson);
-  }
-
-  Future<void> loadCartItems() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    List<String>? cartItemsJson = prefs.getStringList(cartItemsKey);
-    if (cartItemsJson != null) {
-      _cartItems = cartItemsJson
-          .map((itemJson) => Cart.fromMap(jsonDecode(itemJson)))
-          .toList();
-    }
-  }
 
   void addToCart({
     required String productId,
@@ -72,8 +53,13 @@ class CartRepository extends ChangeNotifier {
         _cartItems.add(selectedProduct);
         print(_cartItems.length);
       }
+      notifyListeners();
 
-      await _saveCartItems();
+      print('Updated Cart Items:');
+      for (var item in _cartItems) {
+        print(
+            'Product Name: ${item.productName}, Size Name: ${item.sizeName}, Quantity: ${item.quantity}, Price: ${item.price}');
+      }
       print('Product added to cart successfully');
     } catch (e) {
       print('Error adding to cart: $e');
@@ -125,17 +111,13 @@ class CartRepository extends ChangeNotifier {
 
   Future<List<String>> getImageUrls(String documentId) async {
     try {
-      // Xây dựng đường dẫn đến thư mục trong Storage dựa trên documentId
       String storagePath = 'products_images/$documentId';
 
-      // Lấy tham chiếu đến thư mục trong Cloud Storage
       final ref =
           firebase_storage.FirebaseStorage.instance.ref().child(storagePath);
 
-      // Lấy danh sách các hình ảnh trong thư mục
       final firebase_storage.ListResult result = await ref.listAll();
 
-      // Lưu danh sách URL của các hình ảnh vào một danh sách
       List<String> imageUrls = [];
       for (final item in result.items) {
         final imageUrl = await item.getDownloadURL();
@@ -145,7 +127,7 @@ class CartRepository extends ChangeNotifier {
       return imageUrls;
     } catch (e) {
       print('Error getting image URLs: $e');
-      return []; // Trả về danh sách rỗng nếu có lỗi
+      return [];
     }
   }
 
@@ -162,7 +144,7 @@ class CartRepository extends ChangeNotifier {
         cartItem.image == imageUrl &&
         cartItem.quantity == quantity &&
         cartItem.sizeName == sizeName);
-    _saveCartItems();
+    notifyListeners();
   }
 
   int get itemCount => _cartItems.length;
@@ -180,6 +162,128 @@ class CartRepository extends ChangeNotifier {
     // _cartItems = newCartRepository.cartItems;
     // Hoặc bất kỳ cập nhật nào khác bạn cần thực hiện
     // Sau khi cập nhật, hãy thông báo cho người nghe biết rằng có sự thay đổi
+    notifyListeners();
+  }
+
+  int _selectedQuantity = 0;
+  double _totalPrice = 0.0;
+
+  int get selectedQuantity => _selectedQuantity;
+  double get totalPrice => _totalPrice;
+
+  void setSelectedQuantity(int quantity, double price) {
+    _selectedQuantity = quantity;
+    _totalPrice = price * quantity;
+    notifyListeners();
+  }
+
+  void updateCartItem({
+    required String productName,
+    required double price,
+    required int quantity,
+    required String sizeName,
+    required String imageUrl,
+  }) async {
+    for (Cart product in _cartItems) {
+      if (product.productName == productName &&
+          product.sizeName == sizeName &&
+          product.image == imageUrl) {
+        product.productName = productName;
+        product.sizeName = sizeName;
+        product.image = imageUrl;
+        product.quantity = quantity;
+        product.price = price;
+        break;
+      }
+    }
+
+    // In ra các sản phẩm trong giỏ hàng sau khi cập nhật
+
+    notifyListeners();
+    ();
+    print('Updated Cart Items:');
+    for (var item in _cartItems) {
+      print(
+          'Product Name: ${item.productName}, Size Name: ${item.sizeName}, Quantity: ${item.quantity}, Price: ${item.price}');
+    }
+  }
+
+  double get cartSubTotal => getTotalPrice();
+  void increaseQuantityByProductNameAndSizeName({
+    required String productName,
+    required String sizeName,
+  }) {
+    for (Cart product in _cartItems) {
+      if (product.productName == productName && product.sizeName == sizeName) {
+        // Tăng số lượng của sản phẩm
+        product.quantity++;
+
+        // Tính lại giá của sản phẩm dựa trên số lượng mới
+        product.price =
+            (product.price / (product.quantity - 1)) * product.quantity;
+
+        notifyListeners();
+        return;
+      }
+    }
+    print(
+        'Product with name $productName and size $sizeName not found in cart.');
+  }
+
+  void decreaseQuantityByProductNameAndSizeName({
+    required String productName,
+    required String sizeName,
+  }) {
+    for (Cart product in _cartItems) {
+      if (product.productName == productName && product.sizeName == sizeName) {
+        // Giảm số lượng của sản phẩm, nếu số lượng hiện tại lớn hơn 1
+        if (product.quantity > 1) {
+          product.quantity--;
+
+          // Tính lại giá của sản phẩm dựa trên số lượng mới
+          product.price =
+              (product.price / (product.quantity + 1)) * product.quantity;
+
+          notifyListeners();
+        } else {
+          print('Cannot decrease quantity. Minimum quantity reached.');
+        }
+        return;
+      }
+    }
+    print(
+        'Product with name $productName and size $sizeName not found in cart.');
+  }
+
+  List<Cart> _selectedItems = [];
+  List<Cart> get selectedItems => _selectedItems;
+  void toggleSelectedItem(Cart item, {bool select = true}) {
+    if (select) {
+      if (!_selectedItems.any((selectedItem) =>
+          selectedItem.productName == item.productName &&
+          selectedItem.sizeName == item.sizeName)) {
+        _selectedItems.add(item);
+      }
+    } else {
+      _selectedItems.removeWhere((selectedItem) =>
+          selectedItem.productName == item.productName &&
+          selectedItem.sizeName == item.sizeName);
+    }
+    notifyListeners();
+  }
+
+  double getTotalPrice() {
+    double total = 0;
+    for (var cartItem in _selectedItems) {
+      total += cartItem.price;
+    }
+    notifyListeners();
+
+    return total;
+  }
+
+  void clearSelectedItems() {
+    _selectedItems = [];
     notifyListeners();
   }
 }

@@ -133,7 +133,6 @@ class _ItemWidgetState extends State<ItemWidget> {
             builder: (context) => ProductDetailsView(
               productId: widget.product.productId,
               productRepository: ProductRepository(),
-              cartRepository: cartRepository,
             ),
           ),
         );
@@ -267,7 +266,6 @@ class _ItemWidgetState extends State<ItemWidget> {
                     builder: (context) => ProductDetailsView(
                       productId: widget.product.productId,
                       productRepository: ProductRepository(),
-                      cartRepository: cartRepository,
                     ),
                   ),
                 );
@@ -304,7 +302,6 @@ class _ItemWidgetState extends State<ItemWidget> {
                                   child: ProductDetailsViewBottom(
                                     productId: widget.product.productId,
                                     productRepository: ProductRepository(),
-                                    cartRepository: cartRepository,
                                   ),
                                 );
                               },

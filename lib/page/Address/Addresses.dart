@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_ltdddoan/page/Address/provider/get_address.dart';
 import 'package:flutter_ltdddoan/repositories/auth/user_repository.dart';
+import 'package:provider/provider.dart';
 import '../Address/Widgets/Single_address.dart';
 import '../Address/add_new_address.dart';
 import 'package:flutter_ltdddoan/model/customeraddress.dart';
@@ -15,7 +17,7 @@ class AddressScreen extends StatefulWidget {
 class _AddressScreenState extends State<AddressScreen> {
   List<CustomerAddress> addresses = [];
   int selectedAddressIndex = -1;
-  CustomerAddress? selectedAddress; //Biến tạm lưu address được chọn
+  CustomerAddress? selectedAddress;
   @override
   void initState() {
     super.initState();
@@ -34,15 +36,19 @@ class _AddressScreenState extends State<AddressScreen> {
   }
 
   void handleAddressSelection(int index) {
-    setState(() {
-      if (selectedAddressIndex == index) {
-        selectedAddressIndex = -1;
-        selectedAddress = null;
-      } else {
-        selectedAddressIndex = index;
-        selectedAddress = addresses[index];
-        Navigator.of(context).pop();
-      }
+    Future.microtask(() {
+      setState(() {
+        if (selectedAddressIndex == index) {
+          selectedAddressIndex = -1;
+          selectedAddress = null;
+        } else {
+          selectedAddressIndex = index;
+          selectedAddress = addresses[index];
+          Provider.of<SelectedAddressProvider>(context, listen: false)
+              .setSelectedAddress(selectedAddress!);
+          Navigator.of(context).pop();
+        }
+      });
     });
   }
 
@@ -72,7 +78,9 @@ class _AddressScreenState extends State<AddressScreen> {
           children: [
             SizedBox(width: iconWidth), // Đảm bảo không gian cho icon
             ElevatedButton.icon(
-              onPressed: () => Navigator.of(context).pop(),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
               icon: Icon(Icons.arrow_back),
               label: SizedBox.shrink(), // Ẩn chữ
               style: ElevatedButton.styleFrom(
@@ -86,7 +94,7 @@ class _AddressScreenState extends State<AddressScreen> {
         flexibleSpace: FlexibleSpaceBar(
           centerTitle: true, // Canh giữa tiêu đề văn bản
           title: Text(
-            'Tổng tiền',
+            'Địa chỉ',
             textAlign: TextAlign.center,
             style: TextStyle(
               color: Colors.black, // Màu chữ

@@ -20,16 +20,6 @@ class _PurchasedScreenState extends State<PurchasedScreen> {
         leading: Row(
           children: [
             SizedBox(width: iconWidth), // Đảm bảo không gian cho icon
-            ElevatedButton.icon(
-              onPressed: () => Navigator.of(context).pop(),
-              icon: Icon(Icons.arrow_back),
-              label: SizedBox.shrink(), // Ẩn chữ
-              style: ElevatedButton.styleFrom(
-                elevation: 0, // Không hiển thị shadow
-                backgroundColor: Colors.transparent, // Màu nền trong suốt
-                foregroundColor: Colors.black, // Màu chữ
-              ),
-            ),
           ],
         ),
       ),
@@ -74,9 +64,9 @@ class _PurchasedScreenState extends State<PurchasedScreen> {
                 child: Padding(
                   padding: EdgeInsets.symmetric(vertical: 20.0),
                   child: Text(
-                    'XEM ĐƠN HÀNG',
+                    'Xem đơn hàng',
                     style: TextStyle(
-                      fontSize: 15.0,
+                      fontSize: 18,
                       fontWeight: FontWeight.bold,
                       color: Colors.white, // Màu văn bản là màu trắng
                     ),
@@ -91,14 +81,14 @@ class _PurchasedScreenState extends State<PurchasedScreen> {
               SizedBox(height: 20),
               ElevatedButton(
                 onPressed: () {
-                  // Xử lý khi nút được nhấn
+                  Navigator.pushReplacementNamed(context, '/home');
                 },
                 child: Padding(
                   padding: EdgeInsets.symmetric(vertical: 20.0),
                   child: Text(
-                    'TIẾP TỤC MUA SẮM',
+                    'Tiếp tục mua sắm',
                     style: TextStyle(
-                      fontSize: 15.0,
+                      fontSize: 18,
                       fontWeight: FontWeight.bold,
                       color: Colors.white, // Màu văn bản là màu trắng
                     ),

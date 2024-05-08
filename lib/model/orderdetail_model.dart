@@ -1,6 +1,8 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 class OrderDetail {
-  final String? orderId;
-  final String? productId;
+  final String orderId;
+  final String productId;
   final double price;
   final int quantity;
 
@@ -10,4 +12,23 @@ class OrderDetail {
     required this.price,
     required this.quantity,
   });
+
+  factory OrderDetail.fromFirestore(DocumentSnapshot doc) {
+    final data = doc.data() as Map<String, dynamic>;
+    return OrderDetail(
+      orderId: data['orderId'] ?? '',
+      productId: data['productId'] ?? '',
+      price: data['price'] ?? 0.0,
+      quantity: data['quantity'] ?? 0,
+    );
+  }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'orderId': orderId,
+      'productId': productId,
+      'price': price,
+      'quantity': quantity,
+    };
+  }
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_ltdddoan/gen/assets.gen.dart';
 import 'package:flutter_ltdddoan/page/splash/widget/button.widget.dart';
 import 'package:flutter_ltdddoan/routes/routes.dart';
@@ -70,16 +71,6 @@ class _LoginPageState extends State<LoginPage> {
                           fontSize: 22,
                           fontWeight: FontWeight.w500,
                         ))),
-                Positioned(
-                  left: 20,
-                  top: MediaQuery.of(context).padding.top,
-                  child: GestureDetector(
-                    onTap: () {
-                      Navigator.pop(context);
-                    },
-                    child: Image.asset(Assets.images.backArrow.path),
-                  ),
-                ),
               ],
             ),
           ),
@@ -190,13 +181,15 @@ class _LoginPageState extends State<LoginPage> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Text("Chưa có tài khoản?"),
+                      const Text(
+                        "Chưa có tài khoản?",
+                      ),
                       const SizedBox(
                         width: 10,
                       ),
                       GestureDetector(
                         onTap: () {
-                          Navigator.pushNamed(context, Routes.register);
+                          Navigator.pushReplacementNamed(context, '/register');
                         },
                         child: const Text(
                           "Đăng ký",

@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
-import '../Payment/Purchased.dart';
+import 'package:flutter_ltdddoan/page/Address/provider/get_address.dart';
+import 'package:flutter_ltdddoan/page/Payment/bottom_totalPrice.dart';
+import 'package:flutter_ltdddoan/page/Payment/provider/get_paymentmethod.dart';
+import 'package:provider/provider.dart';
 import '../Address/Addresses.dart';
 import '../Payment/PaymentMethods.dart';
-import '../Payment/TotalPrice.dart';
+import 'package:another_flushbar/flushbar.dart';
 
 class BottomModalPayment extends StatelessWidget {
   const BottomModalPayment({Key? key});
@@ -12,92 +15,241 @@ class BottomModalPayment extends StatelessWidget {
     return SizedBox(
       height: double.infinity,
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 30),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Text(
               'Thanh toán',
               style: TextStyle(
-                fontSize: 18,
+                fontSize: 20, // Tăng kích thước chữ
                 fontWeight: FontWeight.bold,
               ),
             ),
             Divider(
-              thickness: 1,
-              color: Colors.grey,
+              thickness: 2, // Tăng độ dày của đường kẻ
+              color: Colors.grey[400], // Màu sắc đậm hơn
             ),
-            buildOptionRow(
-              'Địa chỉ giao hàng',
-              Icons.arrow_forward_ios,
-              () {
-                // Mở trang Address khi nhấn vào button chọn
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => AddressScreen()),
-                );
-              },
-            ),
-            Divider(
-              thickness: 1,
-              color: Colors.grey,
-            ),
-            buildOptionRow(
-              'Phương thức thanh toán',
-              Icons.arrow_forward_ios,
-              () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => PaymentMethodsScreen()),
-                );
-              },
-            ),
-            Divider(
-              thickness: 1,
-              color: Colors.grey,
-            ),
+            SizedBox(height: 20), // Khoảng cách giữa các phần tử
+            buildOptionRowAddress('Địa chỉ giao hàng', Icons.arrow_forward_ios,
+                () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => AddressScreen(),
+                  settings: RouteSettings(name: '/address'),
+                ),
+              );
+            },
+                showSelected: Provider.of<SelectedAddressProvider>(context)
+                    .hasSelectedAddress(),
+                context: context),
+
+            SizedBox(height: 20), // Khoảng cách giữa các phần tử
+
+            buildOptionRowPayment(
+                'Phương thức thanh toán', Icons.arrow_forward_ios, () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => PaymentMethodsScreen(),
+                  settings: RouteSettings(name: '/paymentMethod'),
+                ),
+              );
+            },
+                showSelected: Provider.of<SelectedPaymentProvider>(context)
+                    .hasSelectedPayment(),
+                context: context),
+
+            SizedBox(height: 20), // Khoảng cách giữa các phần tử
+
             buildOptionRow(
               'Khuyến mãi',
               Icons.arrow_forward_ios,
-              () {
-                // Xử lý khi nhấn vào button chọn khuyến mãi
+              () {},
+            ),
+
+            Spacer(), // Đẩy nút "Tiếp tục" lên dưới cùng
+
+            ElevatedButton(
+              onPressed: () {
+                bool hasSelectedAddress =
+                    Provider.of<SelectedAddressProvider>(context, listen: false)
+                        .hasSelectedAddress();
+                bool hasSelectedPayment =
+                    Provider.of<SelectedPaymentProvider>(context, listen: false)
+                        .hasSelectedPayment();
+
+                if (!hasSelectedAddress && !hasSelectedPayment) {
+                  Flushbar(
+                    message: "Vui lòng chọn địa chỉ và phương thức thanh toán.",
+                    duration: Duration(seconds: 2),
+                  )..show(context);
+                } else if (!hasSelectedAddress) {
+                  Flushbar(
+                    message: "Vui lòng chọn địa chỉ.",
+                    duration: Duration(seconds: 2),
+                  )..show(context);
+                } else if (!hasSelectedPayment) {
+                  Flushbar(
+                    message: "Vui lòng chọn phương thức thanh toán.",
+                    duration: Duration(seconds: 2),
+                  )..show(context);
+                } else {
+                  // Mở bottom modal nếu đã chọn đủ thông tin
+                  Navigator.pop(context); // Đóng modal bottom hiện tại
+                  showModalBottomSheet(
+                    context: context,
+                    isScrollControlled: true,
+                    builder: (BuildContext context) {
+                      return SingleChildScrollView(
+                        child: Container(
+                          height: MediaQuery.of(context).size.height * 0.45,
+                          child: BottomModalTotalPrice(),
+                        ),
+                      );
+                    },
+                  );
+                }
               },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Color(0xFF6342E8),
+                padding: EdgeInsets.symmetric(horizontal: 80, vertical: 20),
+              ),
+              child: Text(
+                'Tiếp tục',
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Colors.white,
+                ),
+              ),
             ),
-            Divider(
-              thickness: 1,
-              color: Colors.grey,
+
+            SizedBox(
+              height: 20,
             ),
-            buildOptionRow(
-              'Tổng tiền',
-              Icons.arrow_forward_ios,
-              () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => TotalPriceScreen()),
-                );
-              },
-            ),
-            Divider(
-              thickness: 1,
-              color: Colors.grey,
-            ),
-            Text(
-              'Bằng cách đặt hàng, bạn đồng ý với các điều khoản sử dụng và bán hàng của Getta.',
+            const Text(
+              'Hãy nhấn tiếp tục để tiến tới bước đặt hàng',
+              textAlign: TextAlign.center, // Căn giữa
               style: TextStyle(
-                fontSize: 12,
+                fontSize: 14,
                 color: Colors.grey,
               ),
             ),
-            SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => PurchasedScreen()),
-                );
-              },
-              child: Text('Đặt hàng'),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget buildOptionRowAddress(
+      String title, IconData icon, VoidCallback onPressed,
+      {required BuildContext context,
+      bool showSelected = false,
+      bool showIcon = true}) {
+    final selectedAddressProvider =
+        Provider.of<SelectedAddressProvider>(context);
+    final bool hasSelectedAddress =
+        selectedAddressProvider.hasSelectedAddress();
+    String buttonText = showSelected && hasSelectedAddress
+        ? selectedAddressProvider.selectedAddress!.name +
+            '\n' +
+            selectedAddressProvider.selectedAddress!.phone +
+            '\n' +
+            selectedAddressProvider.selectedAddress!.addressNote +
+            ', ' +
+            selectedAddressProvider.selectedAddress!.address
+        : 'Chọn';
+    const int MAXIMUM_TEXT_LENGTH = 60;
+    if (buttonText.length > MAXIMUM_TEXT_LENGTH) {
+      // Cắt nội dung và thêm dấu ba chấm ở cuối
+      buttonText = buttonText.substring(0, MAXIMUM_TEXT_LENGTH - 3) + '...';
+    }
+
+    Color textColor = Colors.blue;
+
+    return InkWell(
+      onTap: onPressed,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              title,
+              style: TextStyle(
+                fontSize: 16,
+              ),
+            ),
+            Row(
+              children: [
+                Text(
+                  buttonText,
+                  style: TextStyle(
+                    color: textColor,
+                  ),
+                ),
+                if (showIcon && !showSelected)
+                  Icon(
+                    icon,
+                    color: Colors.blue,
+                  ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget buildOptionRowPayment(
+      String title, IconData icon, VoidCallback onPressed,
+      {required BuildContext context,
+      bool showSelected = false,
+      bool showIcon = true}) {
+    final selectedPaymentProvider =
+        Provider.of<SelectedPaymentProvider>(context);
+    final bool hasSelectedPayment =
+        selectedPaymentProvider.hasSelectedPayment();
+
+    String buttonText = showSelected && hasSelectedPayment
+        ? selectedPaymentProvider.selectedPayment!.description
+        : 'Chọn';
+    const int MAXIMUM_TEXT_LENGTH = 70;
+    if (buttonText.length > MAXIMUM_TEXT_LENGTH) {
+      // Cắt nội dung và thêm dấu ba chấm ở cuối
+      buttonText = buttonText.substring(0, MAXIMUM_TEXT_LENGTH - 3) + '...';
+    }
+
+    Color textColor = Colors.blue;
+
+    return InkWell(
+      onTap: onPressed,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              title,
+              style: TextStyle(
+                fontSize: 16,
+              ),
+            ),
+            Row(
+              children: [
+                Text(
+                  buttonText,
+                  style: TextStyle(
+                    color: textColor,
+                  ),
+                ),
+                if (showIcon && !showSelected)
+                  Icon(
+                    icon,
+                    color: Colors.blue,
+                  ),
+              ],
             ),
           ],
         ),
@@ -106,33 +258,37 @@ class BottomModalPayment extends StatelessWidget {
   }
 
   Widget buildOptionRow(String title, IconData icon, VoidCallback onPressed) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(
-          title,
-          style: TextStyle(
-            fontSize: 16,
-          ),
-        ),
-        InkWell(
-          onTap: onPressed,
-          child: Row(
-            children: [
-              Text(
-                'Chọn',
-                style: TextStyle(
+    return InkWell(
+      onTap: onPressed,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(
+            vertical: 8), // Tăng khoảng cách giữa các dòng
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              title,
+              style: TextStyle(
+                fontSize: 16,
+              ),
+            ),
+            Row(
+              children: [
+                Text(
+                  'Chọn',
+                  style: TextStyle(
+                    color: Colors.blue,
+                  ),
+                ),
+                Icon(
+                  icon,
                   color: Colors.blue,
                 ),
-              ),
-              Icon(
-                icon,
-                color: Colors.blue,
-              ),
-            ],
-          ),
+              ],
+            ),
+          ],
         ),
-      ],
+      ),
     );
   }
 }

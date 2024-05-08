@@ -335,10 +335,19 @@ class _CartitemState extends State<Cartitem> {
                               productName: widget.productName,
                               sizeName: widget.sizeName,
                             );
+                            isSelected = false;
 
-                            isSelected = true;
                             cartRepository.getTotalPrice();
-
+                            cartRepository.toggleSelectedItem(
+                              Cart(
+                                productName: widget.productName,
+                                sizeName: widget.sizeName,
+                                quantity: currentQuantity,
+                                price: widget.defaultPrice,
+                                image: widget.imageUrl,
+                              ),
+                              select: isSelected,
+                            );
                             if (selectCount == 0) {
                               totalSelectCount += 1;
                             } else {
@@ -389,9 +398,19 @@ class _CartitemState extends State<Cartitem> {
                               productName: widget.productName,
                               sizeName: widget.sizeName,
                             );
-                            isSelected = true;
-                            cartRepository.getTotalPrice();
+                            isSelected = false;
 
+                            cartRepository.getTotalPrice();
+                            cartRepository.toggleSelectedItem(
+                              Cart(
+                                productName: widget.productName,
+                                sizeName: widget.sizeName,
+                                quantity: currentQuantity,
+                                price: widget.defaultPrice,
+                                image: widget.imageUrl,
+                              ),
+                              select: isSelected,
+                            );
                             if (selectCount == 0) {
                               totalSelectCount += 1;
                             } else {

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_ltdddoan/page/Address/provider/get_address.dart';
 import 'package:flutter_ltdddoan/page/Cart/provider/cart.dart';
+import 'package:flutter_ltdddoan/page/Payment/provider/get_paymentmethod.dart';
 import 'package:provider/provider.dart';
 import '../../../repositories/auth/user_repository.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -9,16 +11,11 @@ import 'package:firebase_auth/firebase_auth.dart';
 class MenuBarRight extends StatelessWidget {
   void _handleLogout(BuildContext context) async {
     try {
-      // Tạo một CartRepository mới
-      CartRepository cartRepository = CartRepository();
-
-      // Xóa dữ liệu giỏ hàng
-      await cartRepository.clearCartItems();
-      print(cartRepository.cartItems.length);
-
-      // Cập nhật giá trị của CartRepository bằng cách thay thế value hiện tại
-      Provider.of<CartRepository>(context, listen: false).value =
-          cartRepository;
+      Provider.of<CartRepository>(context, listen: false).clearCartItems();
+      Provider.of<SelectedPaymentProvider>(context, listen: false)
+          .resetSelectedPayment();
+      Provider.of<SelectedAddressProvider>(context, listen: false)
+          .resetSelectedAddress();
 
       // Xóa thông tin xác thực người dùng
       UserRepository().clearUserAuth();

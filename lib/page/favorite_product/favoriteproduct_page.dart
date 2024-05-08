@@ -2,7 +2,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_ltdddoan/model/product_model.dart';
 import 'package:flutter_ltdddoan/page/favorite_product/widget/item_list.dart';
-import 'package:flutter_ltdddoan/page/home/home.page.dart';
 import 'package:flutter_ltdddoan/repositories/auth/user_repository.dart';
 import 'package:flutter_ltdddoan/repositories/products/favorite_product.dart';
 

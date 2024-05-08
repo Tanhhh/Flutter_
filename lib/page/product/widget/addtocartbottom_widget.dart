@@ -54,7 +54,7 @@ class _ProductDetailsViewBottomState extends State<ProductDetailsViewBottom> {
         .isProductFavorite(widget.productId, currentUser!.uid);
     if (!mounted) return;
     _favoriteController.isFavorite.value = favoriteStatus;
-    _favoriteController.update(); // Cập nhật trạng thái sử dụng GetX
+    _favoriteController.update();
   }
 
   @override

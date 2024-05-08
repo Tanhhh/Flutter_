@@ -11,15 +11,17 @@ class RegisterPage extends StatefulWidget {
 }
 
 class _RegisterPageState extends State<RegisterPage> {
-  final TextEditingController nameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
+  final TextEditingController confirmPasswordController =
+      TextEditingController(); // Thêm controller cho nhập lại mật khẩu
 
   bool _obscureText = true;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      // Phần giao diện của trang đăng ký
       body: Column(
         children: [
           SizedBox(
@@ -67,15 +69,15 @@ class _RegisterPageState extends State<RegisterPage> {
                           ),
                           GestureDetector(
                             onTap: () {
-                              Navigator.pop(context);
+                              Navigator.pushReplacementNamed(context, '/login');
                             },
                             child: const Text(
                               "Đăng nhập",
                               style: TextStyle(
-                                color: Colors.black,
-                                fontWeight: FontWeight.w500,
-                                decoration: TextDecoration.underline,
-                              ),
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.w500,
+                                  decoration: TextDecoration.underline,
+                                  fontSize: 18),
                             ),
                           ),
                         ],
@@ -95,16 +97,6 @@ class _RegisterPageState extends State<RegisterPage> {
                     ),
                   ),
                 ),
-                Positioned(
-                  left: 20,
-                  top: MediaQuery.of(context).padding.top,
-                  child: GestureDetector(
-                    onTap: () {
-                      Navigator.pop(context);
-                    },
-                    child: Image.asset(Assets.images.backArrow.path),
-                  ),
-                ),
               ],
             ),
           ),
@@ -117,37 +109,6 @@ class _RegisterPageState extends State<RegisterPage> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    const Text(
-                      "Tên của bạn",
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontWeight: FontWeight.w600,
-                        fontSize: 16,
-                      ),
-                    ),
-                    const SizedBox(
-                      height: 10,
-                    ),
-                    TextField(
-                      controller: nameController,
-                      decoration: InputDecoration(
-                        hintText: "Họ và tên",
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        prefixIcon: Icon(
-                          Icons.person,
-                          color: Color(0xFF6342E8),
-                        ),
-                        suffixIcon: const Icon(
-                          Icons.error,
-                          color: Color(0xFF6342E8),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(
-                      height: 30,
-                    ),
                     const Text(
                       "Địa chỉ Email",
                       style: TextStyle(
@@ -210,14 +171,56 @@ class _RegisterPageState extends State<RegisterPage> {
                     const SizedBox(
                       height: 30,
                     ),
+                    const Text(
+                      "Nhập lại mật khẩu", // Thêm trường nhập lại mật khẩu
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 16,
+                      ),
+                    ),
+                    TextField(
+                      controller: confirmPasswordController,
+                      obscureText: _obscureText,
+                      decoration: InputDecoration(
+                        hintText: "Nhập lại mật khẩu",
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        prefixIcon: Image.asset(
+                          Assets.images.lock.path,
+                          color: Color(0xFF6342E8),
+                        ),
+                        suffixIcon: GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              _obscureText = !_obscureText;
+                            });
+                          },
+                          child: Icon(
+                            _obscureText
+                                ? Icons.visibility
+                                : Icons.visibility_off,
+                            color: Colors.grey,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(
+                      height: 30,
+                    ),
                     ButtonWidget(
                       height: 65,
                       onTap: () {
-                        String name = nameController.text;
                         String email = emailController.text;
                         String password = passwordController.text;
+                        String confirmPassword = confirmPasswordController
+                            .text; // Lấy giá trị nhập lại mật khẩu
                         registerUserWithEmailAndPassword(
-                            context, name, email, password);
+                            context,
+                            confirmPassword,
+                            email,
+                            password); // Truyền thêm giá trị nhập lại mật khẩu vào hàm đăng ký
                       },
                       title: 'Đăng ký',
                       isFilled: true,

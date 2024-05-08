@@ -51,34 +51,54 @@ class CartBottomBar extends StatelessWidget {
               Container(
                 height: 50,
                 alignment: Alignment.center,
-                width: 300,
+                width: 600,
                 decoration: BoxDecoration(
                   color: Color(0xFF6342E8),
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: InkWell(
                   onTap: () {
+                    if (cartRepository.cartItems.isEmpty) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('Chưa có sản phẩm trong giỏ hàng!'),
+                          duration: Duration(seconds: 1),
+                        ),
+                      );
+                      return;
+                    }
+                    if (cartRepository.selectedItems.isEmpty) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('Chưa chọn sản phẩm để thanh toán!'),
+                          duration: Duration(seconds: 1),
+                        ),
+                      );
+                      return;
+                    }
                     showModalBottomSheet(
                       context: context,
+                      isScrollControlled: true,
                       builder: (BuildContext context) {
-                        return BottomModalPayment();
+                        return SingleChildScrollView(
+                          child: Container(
+                            height: MediaQuery.of(context).size.height * 0.5,
+                            child: BottomModalPayment(),
+                          ),
+                        );
                       },
                     );
                   },
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(
-                        Icons.logout_outlined,
-                        color: Colors.white,
-                      ),
                       Padding(
-                        padding: EdgeInsets.all(15),
+                        padding: EdgeInsets.all(11),
                         child: Text(
-                          "THANH TOÁN",
+                          "Thanh toán",
                           style: TextStyle(
                               color: Colors.white,
-                              fontSize: 14,
+                              fontSize: 18,
                               fontWeight: FontWeight.bold),
                         ),
                       )

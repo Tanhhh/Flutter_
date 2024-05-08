@@ -3,7 +3,6 @@ import 'package:flutter_ltdddoan/page/Cart/Cartitem.dart';
 import 'package:flutter_ltdddoan/page/Cart/cartbottomBar.dart';
 
 import 'package:flutter_ltdddoan/page/Cart/provider/cart.dart'; // Import CartRepository
-import 'package:flutter_ltdddoan/page/home/widget/item.widget.dart';
 import 'package:provider/provider.dart';
 
 class Cartpage extends StatelessWidget {
@@ -20,6 +19,8 @@ class Cartpage extends StatelessWidget {
           icon: Icon(Icons.arrow_back),
           onPressed: () {
             Navigator.pushReplacementNamed(context, '/home');
+            Provider.of<CartRepository>(context, listen: false)
+                .clearSelectedItems();
           },
         ),
         title: Row(

@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_ltdddoan/model/cart_model.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 
 class CartRepository extends ChangeNotifier {
@@ -20,6 +19,13 @@ class CartRepository extends ChangeNotifier {
   }
 
   static const String cartItemsKey = 'cartItems';
+  double calculateShippingFee(String address) {
+    if (!address.toLowerCase().contains('hồ chí minh')) {
+      return 100000;
+    } else {
+      return 0;
+    }
+  }
 
   void addToCart({
     required String productId,
@@ -63,6 +69,24 @@ class CartRepository extends ChangeNotifier {
       print('Product added to cart successfully');
     } catch (e) {
       print('Error adding to cart: $e');
+    }
+  }
+
+  Future<String> getProductIdByName(String name) async {
+    try {
+      final snapshot = await FirebaseFirestore.instance
+          .collection('products')
+          .where('name', isEqualTo: name)
+          .get();
+      if (snapshot.docs.isNotEmpty) {
+        final productData = snapshot.docs.first.data();
+        final String productId = productData['productId'];
+        return productId;
+      } else {
+        throw Exception('Size with name $name not found!');
+      }
+    } catch (e) {
+      throw Exception('Error fetching size: $e');
     }
   }
 
@@ -152,8 +176,6 @@ class CartRepository extends ChangeNotifier {
   Future<void> clearCartItems() async {
     _cartItems.clear();
     notifyListeners();
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.remove(cartItemsKey);
   }
 
   void update(CartRepository newCartRepository) {

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_ltdddoan/page/Cart/provider/cart.dart';
+import 'package:provider/provider.dart';
 import '../../page/home/home.page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../../model/customer_model.dart';
@@ -50,22 +51,23 @@ Future<void> loginUserWithEmailAndPassword(
     if (userSnapshot.exists &&
         (userSnapshot.data() as Map<String, dynamic>)['customerId'] ==
             userUID) {
-      await CartRepository().clearCartItems();
-      showDialog(
+      showDialog<void>(
         context: context,
+        barrierDismissible: false,
         builder: (BuildContext context) {
-          return AlertDialog(
-            title: Text('Thông báo'),
-            content: Text('Đăng nhập thành công!'),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                  Navigator.pushReplacementNamed(context, '/home');
-                },
-                child: Text('Đóng'),
+          Future.delayed(Duration(seconds: 2), () {
+            Navigator.of(context).pop();
+            Navigator.pushReplacementNamed(context, '/home');
+          });
+
+          return Container(
+            height: MediaQuery.of(context).size.height,
+            color: Colors.transparent,
+            child: Center(
+              child: CircularProgressIndicator(
+                color: Colors.white,
               ),
-            ],
+            ),
           );
         },
       );
@@ -93,8 +95,7 @@ Future<void> loginUserWithEmailAndPassword(
       // Lưu đối tượng Customer vào Firestore
       await docRef.set(newCustomer.toMap());
 
-      // Hiển thị thông báo đăng nhập thành công và chuyển hướng người dùng đến trang chính
-      showDialog(
+      showDialog<void>(
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
@@ -125,21 +126,73 @@ Future<void> loginUserWithEmailAndPassword(
     }
 
     showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Thông báo'),
-          content: Text(errorMessage),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text('Đóng'),
-            ),
-          ],
-        );
-      },
-    );
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return AlertDialog(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.zero,
+              ),
+              backgroundColor: Colors.white,
+              content: Container(
+                height: MediaQuery.of(context).size.height * 0.05,
+                alignment: Alignment.center,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    Flexible(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                        child: Text(
+                          errorMessage,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              actions: <Widget>[
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    TextButton(
+                      style: ButtonStyle(
+                        shape: MaterialStateProperty.all(
+                          RoundedRectangleBorder(
+                            borderRadius: BorderRadius.zero,
+                          ),
+                        ),
+                        side: MaterialStateProperty.all(
+                          BorderSide(
+                            color: Color(0xFF6342E8),
+                            width: 1,
+                          ),
+                        ),
+                      ),
+                      child: Container(
+                        height: 30,
+                        width: 90,
+                        alignment: Alignment.center,
+                        child: Text(
+                          'Ok',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF6342E8),
+                          ),
+                        ),
+                      ),
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                    ),
+                  ],
+                ),
+              ]);
+        });
   }
 }

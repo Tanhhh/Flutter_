@@ -98,4 +98,26 @@ class OrderRepository {
       throw Exception("Failed to get latest order: $e");
     }
   }
+
+  Future<List<OrderModel>> getUnconfirmedOrdersByCustomerId(
+      String customerId) async {
+    try {
+      QuerySnapshot<Map<String, dynamic>> querySnapshot =
+          await FirebaseFirestore.instance
+              .collection('orders')
+              .where('customerId', isEqualTo: customerId)
+              .where('isConfirm', isEqualTo: false)
+              .get();
+
+      List<OrderModel> orders = querySnapshot.docs
+          .map((doc) => OrderModel.fromFirestore(doc))
+          .toList();
+
+      return orders;
+    } catch (e) {
+      // Xử lý lỗi nếu cần
+      print('Error getting unconfirmed orders by customer id: $e');
+      return []; // Trả về danh sách rỗng nếu có lỗi
+    }
+  }
 }

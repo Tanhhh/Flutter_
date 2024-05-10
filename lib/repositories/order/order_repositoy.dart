@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_ltdddoan/model/customeraddress.dart';
 import 'package:flutter_ltdddoan/model/orderdetail_model.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 
 import '../../model/order_model.dart';
 
@@ -45,6 +47,39 @@ class OrderRepository {
       throw Exception("Failed to add order: $e");
     }
   }
+
+// Future<void> sendOrderNotification(String deviceToken) async {
+//   try {
+//     // Khởi tạo Firebase Messaging
+//     FirebaseMessaging messaging = FirebaseMessaging.instance;
+
+//     // Tạo thông báo
+//     var notification = RemoteNotification(
+//       title: 'Thông báo đơn hàng',
+//       body: 'Đơn hàng của bạn đã được đặt thành công.',
+//     );
+
+//     // Tạo data payload (nếu cần)
+//     var data = {
+//       'orderId': '12345',
+//       'status': 'Đã đặt hàng',
+//     };
+
+//     // Gửi thông báo
+//     await messaging.sendToDevice(
+//       deviceToken,
+//       {
+//         'notification': {
+//           'title': notification.title!,
+//           'body': notification.body!,
+//         },
+//         'data': data,
+//       },
+//     );
+//   } catch (e) {
+//     print('Error sending notification: $e');
+//   }
+// }
 
   Future<void> addOrderDetail(OrderDetail orderDetail) async {
     try {

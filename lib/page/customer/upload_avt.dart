@@ -1,7 +1,10 @@
-import 'dart:io';
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:http/http.dart' as http;
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
+import 'package:flutter_ltdddoan/repositories/auth/user_repository.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class ImageUploaderWidget extends StatefulWidget {
   final VoidCallback? onImageSelected;
@@ -13,75 +16,137 @@ class ImageUploaderWidget extends StatefulWidget {
 }
 
 class _ImageUploaderWidgetState extends State<ImageUploaderWidget> {
-  File? _imageFile;
-  String? _imageUrl;
   final picker = ImagePicker();
+  String? userId = UserRepository().getUserAuth()?.uid;
+  String? imagePath;
 
-  Future getImage() async {
+  Future<void> getImage() async {
     final pickedFile = await picker.pickImage(source: ImageSource.gallery);
 
-    setState(() {
-      if (pickedFile != null) {
-        _imageFile = File(pickedFile.path);
-      } else {
-        print('No image selected.');
-      }
-    });
-
-    // Upload image to Firebase Storage and get the URL
-    if (_imageFile != null) {
-      _imageUrl = await uploadImageToFirebaseStorage(_imageFile!);
-      // Now you have the image URL, you can save it to Firestore or perform any other action
+    if (pickedFile != null) {
+      setState(() {
+        imagePath = pickedFile.path;
+      });
+    } else {
+      print('No image selected.');
     }
 
-    // Call the callback function if provided
     if (widget.onImageSelected != null) {
       widget.onImageSelected!();
     }
   }
 
-  Future<String> uploadImageToFirebaseStorage(File imageFile) async {
-    firebase_storage.Reference ref = firebase_storage.FirebaseStorage.instance
-        .ref()
-        .child('images') // Change this to your folder name
-        .child(
-            '${DateTime.now().millisecondsSinceEpoch}.png'); // Use a unique filename
+  Future<void> uploadImage() async {
+    if (imagePath != null) {
+      await uploadImageToFirebaseStorage(userId!, imagePath!);
+      setState(() {
+        imagePath = null;
+      });
+      Navigator.pop(context);
+      Navigator.pushReplacementNamed(context, '/profile');
 
-    firebase_storage.UploadTask uploadTask = ref.putFile(imageFile);
-    firebase_storage.TaskSnapshot taskSnapshot = await uploadTask;
-    String downloadUrl = await taskSnapshot.ref.getDownloadURL();
-    return downloadUrl;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Lưu thành công')),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('No image selected')),
+      );
+    }
+  }
+
+  Future<void> uploadImageToFirebaseStorage(
+      String documentId, String imagePath) async {
+    try {
+      String storagePath = 'customers_images/$documentId';
+      final ref =
+          firebase_storage.FirebaseStorage.instance.ref().child(storagePath);
+
+      final imageName = 'image.png';
+
+      // Tải hình ảnh từ URL
+      final http.Response response = await http.get(Uri.parse(imagePath));
+      if (response.statusCode == 200) {
+        // Lấy dữ liệu hình ảnh từ phản hồi HTTP
+        final List<int> imageData = response.bodyBytes;
+
+        // Tạo Uint8List từ dữ liệu hình ảnh
+        final Uint8List uint8ImageData = Uint8List.fromList(imageData);
+
+        // Tạo metadata cho hình ảnh
+        final metadata =
+            firebase_storage.SettableMetadata(contentType: 'image/png');
+
+        // Tạo upload task và tải lên Firebase Storage
+        await ref.child(imageName).putData(uint8ImageData, metadata);
+
+        print('Uploaded $imageName');
+      } else {
+        print('Failed to load image from URL: $imagePath');
+      }
+    } catch (e) {
+      print('Error uploading image: $e');
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: <Widget>[
-        Center(
-          child: _imageFile == null
-              ? Text('No image selected.')
-              : Image.file(
-                  _imageFile!,
-                  height: 200,
-                ),
-        ),
         SizedBox(height: 20),
-        Center(
-          child: ElevatedButton(
-            onPressed: getImage,
-            child: Text('Select Image'),
+        if (imagePath == null)
+          Center(
+            child: ElevatedButton(
+              onPressed: getImage,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Color(0xFF6342E8), // Màu nút
+                shape: RoundedRectangleBorder(
+                  borderRadius:
+                      BorderRadius.zero, // Hình dạng hình chữ nhật không bo góc
+                ),
+              ),
+              child: Text(
+                'Chọn ảnh',
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
           ),
-        ),
         SizedBox(height: 20),
-        _imageUrl != null
-            ? Center(
-                child: Text(
-                  'Image URL: $_imageUrl',
-                  style: TextStyle(fontWeight: FontWeight.bold),
+        if (imagePath != null)
+          Center(
+            child: Container(
+              width: 150,
+              height: 150,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                image: DecorationImage(
+                  image:
+                      CachedNetworkImageProvider(imagePath!), // Sửa đổi ở đây
+                  fit: BoxFit.cover,
                 ),
-              )
-            : Container(),
+              ),
+            ),
+          ),
+        SizedBox(height: 20),
+        if (imagePath != null)
+          Center(
+            child: ElevatedButton(
+              onPressed: uploadImage,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Color(0xFF6342E8), // Màu nút
+                shape: RoundedRectangleBorder(
+                  borderRadius:
+                      BorderRadius.zero, // Hình dạng hình chữ nhật không bo góc
+                ),
+              ),
+              child: Text(
+                'Cập nhật',
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
+          ),
+        SizedBox(height: 20),
       ],
     );
   }

@@ -5,16 +5,15 @@ import 'package:flutter_ltdddoan/page/splash/widget/button.widget.dart';
 import 'package:flutter_ltdddoan/routes/routes.dart';
 import '../../../repositories/auth/login_repository.dart';
 
-class LoginPage extends StatefulWidget {
-  const LoginPage({Key? key}) : super(key: key);
+class ForgotPassPage extends StatefulWidget {
+  const ForgotPassPage({Key? key}) : super(key: key);
 
   @override
-  _LoginPageState createState() => _LoginPageState();
+  _ForgotPassPageState createState() => _ForgotPassPageState();
 }
 
-class _LoginPageState extends State<LoginPage> {
+class _ForgotPassPageState extends State<ForgotPassPage> {
   TextEditingController emailController = TextEditingController();
-  TextEditingController passwordController = TextEditingController();
 
   bool _obscureText = true;
 
@@ -65,7 +64,7 @@ class _LoginPageState extends State<LoginPage> {
                 Positioned(
                     left: 20,
                     bottom: 30,
-                    child: Text("Đăng nhập".toUpperCase(),
+                    child: Text("Quên mật khẩu".toUpperCase(),
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 22,
@@ -105,78 +104,15 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                     ),
                   ),
-                  const SizedBox(
+                  SizedBox(
                     height: 20,
-                  ),
-                  const Text(
-                    "Mật khẩu",
-                    style: TextStyle(
-                        color: Colors.black,
-                        fontWeight: FontWeight.w600,
-                        fontSize: 16),
-                  ),
-                  TextField(
-                    controller: passwordController,
-                    obscureText: _obscureText,
-                    decoration: InputDecoration(
-                      hintText: "Nhập mật khẩu",
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      prefixIcon: Image.asset(
-                        Assets.images.lock.path,
-                        color: Color(0xFF6342E8),
-                      ),
-                      suffixIcon: GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            // Thay đổi trạng thái ẩn/hiện mật khẩu
-                            _obscureText = !_obscureText;
-                          });
-                        },
-                        child: Icon(
-                          _obscureText
-                              ? Icons.visibility
-                              : Icons.visibility_off,
-                          color: Colors.grey,
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(
-                    height: 20,
-                  ),
-                  Row(
-                    mainAxisSize: MainAxisSize.max,
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Row(
-                        children: [
-                          Checkbox(
-                            value: true,
-                            onChanged: (e) {},
-                          ),
-                          const Text("Nhớ mật khẩu")
-                        ],
-                      ),
-                      GestureDetector(
-                        onTap: () {
-                          Navigator.pushNamed(context, '/forgotPass');
-                        },
-                        child: Text(
-                          "Quên mật khẩu ?",
-                          style: TextStyle(color: Color(0xFF6342E8)),
-                        ),
-                      ),
-                    ],
                   ),
                   ButtonWidget(
                     height: 65,
                     onTap: () {
-                      loginUserWithEmailAndPassword(context,
-                          emailController.text, passwordController.text);
+                      resetPassword(emailController.text, context);
                     },
-                    title: 'Đăng nhập',
+                    title: 'Xác nhận',
                     isFilled: true,
                     filledColor: const Color(0xFF6342E8),
                   ),
@@ -187,17 +123,17 @@ class _LoginPageState extends State<LoginPage> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       const Text(
-                        "Chưa có tài khoản?",
+                        "Quay lại trang?",
                       ),
                       const SizedBox(
                         width: 10,
                       ),
                       GestureDetector(
                         onTap: () {
-                          Navigator.pushReplacementNamed(context, '/register');
+                          Navigator.pushReplacementNamed(context, '/login');
                         },
                         child: const Text(
-                          "Đăng ký",
+                          "Đăng nhập",
                           style: TextStyle(color: Color(0xFF6342E8)),
                         ),
                       )

@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_ltdddoan/page/product/widget/view_full1image.dart';
+import 'package:flutter_ltdddoan/repositories/auth/user_repository.dart';
+import 'package:get/get.dart';
 import '../../repositories/customer/saveprofile_repository.dart';
 import 'package:intl/intl.dart';
 import 'upload_avt.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 TextEditingController hoTenController = TextEditingController();
 TextEditingController emailController = TextEditingController();
@@ -23,11 +27,14 @@ class UserProfilePage extends StatefulWidget {
 }
 
 class _ParentWidgetState extends State<UserProfilePage> {
+  String? avtImageUrl = '';
+
   @override
   void initState() {
     super.initState();
     _fetchUserData();
     _restoreIconStates();
+    _fetchAvtImageUrls();
   }
 
   @override
@@ -70,9 +77,7 @@ class _ParentWidgetState extends State<UserProfilePage> {
                                   context,
                                   MaterialPageRoute(
                                     builder: (context) => SingleImagePage(
-                                      imageUrl: avtController.text.isEmpty
-                                          ? 'assets/images/avt.png'
-                                          : avtController.text,
+                                      imageUrl: avtImageUrl!,
                                     ),
                                   ),
                                 );
@@ -80,16 +85,77 @@ class _ParentWidgetState extends State<UserProfilePage> {
                             ),
                             ListTile(
                               leading: Icon(Icons.upload),
-                              title: Text('Upload ảnh lên'),
+                              title: Text('Tải ảnh lên'),
                               onTap: () {
-                                Navigator.pop(
-                                    context); // Đóng bottom sheet trước
+                                Navigator.pop(context); // Đóng modal trước đó
                                 showDialog(
                                   context: context,
                                   builder: (BuildContext context) {
                                     return Dialog(
-                                      child: ImageUploaderWidget(
-                                        onImageSelected: () {},
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(10.0),
+                                      ),
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                          borderRadius:
+                                              BorderRadius.circular(10.0),
+                                          color: Colors.white,
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color:
+                                                  Colors.grey.withOpacity(0.5),
+                                              spreadRadius: 2,
+                                              blurRadius: 5,
+                                              offset: Offset(0, 3),
+                                            ),
+                                          ],
+                                        ),
+                                        child: Column(
+                                          mainAxisSize: MainAxisSize.min,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.stretch,
+                                          children: [
+                                            AppBar(
+                                              title: Text(
+                                                'Ảnh đại diện',
+                                                style: TextStyle(
+                                                    color: Colors.black),
+                                              ),
+                                              backgroundColor: Colors.white,
+                                              elevation: 0,
+                                              centerTitle: true,
+                                              automaticallyImplyLeading:
+                                                  false, // Loại bỏ icon back
+                                              actions: [
+                                                IconButton(
+                                                  icon: Icon(Icons.close),
+                                                  onPressed: () {
+                                                    Navigator.pop(context);
+                                                  },
+                                                ),
+                                              ],
+                                            ),
+                                            Padding(
+                                              padding: EdgeInsets.symmetric(
+                                                  horizontal: 16.0),
+                                              child: Divider(
+                                                color: Colors.grey,
+                                                height: 1,
+                                              ),
+                                            ),
+                                            Padding(
+                                              padding: EdgeInsets.symmetric(
+                                                  horizontal: 16.0),
+                                              child: ImageUploaderWidget(
+                                                onImageSelected: () {
+                                                  _fetchAvtImageUrls();
+                                                },
+                                              ),
+                                            ),
+                                            SizedBox(height: 16.0),
+                                          ],
+                                        ),
                                       ),
                                     );
                                   },
@@ -102,17 +168,108 @@ class _ParentWidgetState extends State<UserProfilePage> {
                     },
                   );
                 },
-                child: CircleAvatar(
-                  radius: 60,
-                  backgroundColor: Colors.transparent,
-                  child: ClipOval(
-                    child: Image.asset(
-                      avtController.text.isEmpty
-                          ? 'images/avt.png'
-                          : avtController.text,
-                      fit: BoxFit.cover,
+                child: Stack(
+                  children: [
+                    CircleAvatar(
+                      radius: 50,
+                      backgroundImage:
+                          avtImageUrl != null && avtImageUrl!.isNotEmpty
+                              ? NetworkImage(avtImageUrl!) as ImageProvider
+                              : AssetImage("assets/images/avt.png")
+                                  as ImageProvider,
                     ),
-                  ),
+                    Positioned(
+                      right: -2,
+                      bottom: -5,
+                      child: SizedBox(
+                        height: 42,
+                        width: 42,
+                        child: TextButton(
+                          style: TextButton.styleFrom(
+                            foregroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(50),
+                              side: const BorderSide(color: Colors.white),
+                            ),
+                            backgroundColor: const Color(0xFFF5F6F9),
+                          ),
+                          onPressed: () {
+                            showDialog(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return Dialog(
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10.0),
+                                  ),
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(10.0),
+                                      color: Colors.white,
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.grey.withOpacity(0.5),
+                                          spreadRadius: 2,
+                                          blurRadius: 5,
+                                          offset: Offset(0, 3),
+                                        ),
+                                      ],
+                                    ),
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.stretch,
+                                      children: [
+                                        AppBar(
+                                          title: Text(
+                                            'Ảnh đại diện',
+                                            style:
+                                                TextStyle(color: Colors.black),
+                                          ),
+                                          backgroundColor: Colors.white,
+                                          elevation: 0,
+                                          centerTitle: true,
+                                          automaticallyImplyLeading:
+                                              false, // Loại bỏ icon back
+                                          actions: [
+                                            IconButton(
+                                              icon: Icon(Icons.close),
+                                              onPressed: () {
+                                                Navigator.pop(context);
+                                              },
+                                            ),
+                                          ],
+                                        ),
+                                        Padding(
+                                          padding: EdgeInsets.symmetric(
+                                              horizontal: 16.0),
+                                          child: Divider(
+                                            color: Colors.grey,
+                                            height: 1,
+                                          ),
+                                        ),
+                                        Padding(
+                                          padding: EdgeInsets.symmetric(
+                                              horizontal: 16.0),
+                                          child: ImageUploaderWidget(
+                                            onImageSelected: () {
+                                              _fetchAvtImageUrls();
+                                            },
+                                          ),
+                                        ),
+                                        SizedBox(height: 16.0),
+                                      ],
+                                    ),
+                                  ),
+                                );
+                              },
+                            );
+                          },
+                          child:
+                              SvgPicture.asset("assets/icons/Camera Icon.svg"),
+                        ),
+                      ),
+                    )
+                  ],
                 ),
               ),
             ),
@@ -250,6 +407,11 @@ class _ParentWidgetState extends State<UserProfilePage> {
   void _saveDataToFirestore() {
     UserProfileRepository.saveCustomerProfileChanges(hoTenController,
         emailController, namsinhController, avtController, genderController);
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Lưu thành công'), duration: Duration(seconds: 1)),
+    );
+    Navigator.pushReplacementNamed(context, '/profile');
   }
 
   // Hàm tạo TextField có chức năng chỉnh sửa và biểu tượng thay đổi màu
@@ -287,5 +449,15 @@ class _ParentWidgetState extends State<UserProfilePage> {
   _restoreIconStates() async {
     await UserProfileRepository.restoreIconStates(isHoTenIconTapped,
         isEmailIconTapped); // Sử dụng phương thức từ repository
+  }
+
+  // Hàm lấy danh sách URL của hình ảnh avatar từ Firebase Storage
+  _fetchAvtImageUrls() async {
+    String? userId = UserRepository().getUserAuth()?.uid;
+    String documentId = userId!;
+    String? imageUrl = await UserRepository().getLatestImageUrl(documentId);
+    setState(() {
+      avtImageUrl = imageUrl;
+    });
   }
 }

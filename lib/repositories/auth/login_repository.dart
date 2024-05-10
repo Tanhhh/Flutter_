@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter_ltdddoan/page/Cart/provider/cart.dart';
-import 'package:provider/provider.dart';
 import '../../page/home/home.page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../../model/customer_model.dart';
@@ -30,7 +28,11 @@ Future<void> loginUserWithEmailAndPassword(
     UserCredential userCredential = await FirebaseAuth.instance
         .signInWithEmailAndPassword(email: email, password: password);
     String userUID = userCredential.user!.uid;
-
+    await userCredential.user!.reload();
+    String? oldPass = await getCustomerPassword(userUID);
+    if (oldPass != password) {
+      await updateCustomerPassword(userUID, password);
+    }
     print('Xác thực: ${userCredential.user?.emailVerified}');
     // Kiểm tra xem email đã được xác thực chưa
     if (!userCredential.user!.emailVerified) {
@@ -194,5 +196,197 @@ Future<void> loginUserWithEmailAndPassword(
                 ),
               ]);
         });
+  }
+}
+
+Future<String?> getCustomerPassword(String customerId) async {
+  try {
+    // Truy vấn Firestore để lấy tài liệu từ collection 'customers' với customerId tương ứng
+    DocumentSnapshot snapshot = await FirebaseFirestore.instance
+        .collection('customers')
+        .doc(customerId)
+        .get();
+
+    // Kiểm tra xem tài liệu có tồn tại không
+    if (snapshot.exists) {
+      // Lấy trường 'customerPassword' từ tài liệu
+      return snapshot.get('customerPassword');
+    } else {
+      // Trả về null nếu tài liệu không tồn tại
+      return null;
+    }
+  } catch (e) {
+    print('Lỗi khi lấy mật khẩu khách hàng: $e');
+    return null;
+  }
+}
+
+Future<void> updateCustomerPassword(
+    String customerId, String newPassword) async {
+  try {
+    // Tạo một map chứa dữ liệu cần cập nhật
+    Map<String, dynamic> data = {'customerPassword': newPassword};
+
+    // Thực hiện cập nhật tài liệu trong collection 'customers' với customerId tương ứng
+    await FirebaseFirestore.instance
+        .collection('customers')
+        .doc(customerId)
+        .update(data);
+  } catch (e) {
+    print('Lỗi khi cập nhật mật khẩu khách hàng: $e');
+    throw e;
+  }
+}
+
+Future<void> resetPassword(String email, BuildContext context) async {
+  try {
+    await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
+    // Hiển thị dialog thành công
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.zero,
+          ),
+          backgroundColor: Colors.white,
+          content: Container(
+            height: MediaQuery.of(context).size.height * 0.05,
+            alignment: Alignment.center,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                Flexible(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                    child: Text(
+                      'Kiểm tra email để reset mật khẩu!',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                TextButton(
+                  style: ButtonStyle(
+                    shape: MaterialStateProperty.all(
+                      RoundedRectangleBorder(
+                        borderRadius: BorderRadius.zero,
+                      ),
+                    ),
+                    side: MaterialStateProperty.all(
+                      BorderSide(
+                        color: Color(0xFF6342E8),
+                        width: 1,
+                      ),
+                    ),
+                  ),
+                  child: Container(
+                    height: 30,
+                    width: 90,
+                    alignment: Alignment.center,
+                    child: Text(
+                      'Ok',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF6342E8),
+                      ),
+                    ),
+                  ),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                ),
+              ],
+            ),
+          ],
+        );
+      },
+    );
+  } catch (e) {
+    print('Lỗi khi gửi email đặt lại mật khẩu: $e');
+    // Hiển thị dialog lỗi
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.zero,
+          ),
+          backgroundColor: Colors.white,
+          content: Container(
+            height: MediaQuery.of(context).size.height * 0.05,
+            alignment: Alignment.center,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                Flexible(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                    child: Text(
+                      'Đã xảy ra lỗi khi gửi email đặt lại mật khẩu.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                TextButton(
+                  style: ButtonStyle(
+                    shape: MaterialStateProperty.all(
+                      RoundedRectangleBorder(
+                        borderRadius: BorderRadius.zero,
+                      ),
+                    ),
+                    side: MaterialStateProperty.all(
+                      BorderSide(
+                        color: Color(0xFF6342E8),
+                        width: 1,
+                      ),
+                    ),
+                  ),
+                  child: Container(
+                    height: 30,
+                    width: 90,
+                    alignment: Alignment.center,
+                    child: Text(
+                      'Ok',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF6342E8),
+                      ),
+                    ),
+                  ),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                ),
+              ],
+            ),
+          ],
+        );
+      },
+    );
+    throw e;
   }
 }

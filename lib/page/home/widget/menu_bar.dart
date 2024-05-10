@@ -72,7 +72,7 @@ class ProfileScreen extends StatelessWidget {
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 20.0),
                       child: Text(
-                        'Bạn có chắc chắn muốn xóa sản phẩm này?',
+                        'Bạn có chắc chắn muốn đăng xuất không?',
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
@@ -189,7 +189,25 @@ class ProfileScreen extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(vertical: 20),
                 child: Column(
                   children: [
-                    const ProfilePic(),
+                    FutureBuilder<String?>(
+                      future:
+                          UserRepository().getLatestImageUrl(currentUser!.uid),
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return CircularProgressIndicator();
+                        } else if (snapshot.hasError) {
+                          return Text('Error: ${snapshot.error}');
+                        } else {
+                          String? imageUrl = snapshot.data;
+                          if (imageUrl != '') {
+                            return ProfilePic(imageUrl: imageUrl);
+                          } else {
+                            return ProfilePic();
+                          }
+                        }
+                      },
+                    ),
                     const SizedBox(height: 20),
                     ProfileMenu(
                       text: "Tài khoản",

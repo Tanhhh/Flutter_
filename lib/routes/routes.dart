@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_ltdddoan/page/Cart/Cartpage.dart';
 import 'package:flutter_ltdddoan/page/Payment/PaymentMethods.dart';
 import 'package:flutter_ltdddoan/page/Payment/Purchased.dart';
+import 'package:flutter_ltdddoan/page/auth/login/forgot_pass.dart';
 import 'package:flutter_ltdddoan/page/auth/login/login.page.dart';
 import 'package:flutter_ltdddoan/page/auth/register/register.page.dart';
 import 'package:flutter_ltdddoan/page/home/widget/menu_bar.dart';
@@ -33,6 +34,7 @@ class Routes {
   static const String discount = '/discount';
   static const String menu = '/menu';
   static const String orderDetail = '/orderDetail';
+  static const String forgotPass = '/forgotPass';
 
   static final routes = <String, WidgetBuilder>{
     splash: (_) => const SplashPage(),
@@ -49,8 +51,7 @@ class Routes {
     success: (_) => PurchasedScreen(),
     discount: (_) => PromotionListPage(),
     menu: (_) => ProfileScreen(),
-    orderDetail: (_) => OrderDetailPage(
-          orderId: 'maXfS7BtxFoaWSGI5QBH',
-        ),
+    orderDetail: (_) => OrderDetailPage(orderId: 'maXfS7BtxFoaWSGI5QBH'),
+    forgotPass: (_) => ForgotPassPage(),
   };
 }

@@ -12,7 +12,7 @@ class SearchAppBar extends StatelessWidget {
         children: [
           InkWell(
             onTap: () {
-              Navigator.pop(context);
+              Navigator.pushReplacementNamed(context, '/home');
             },
             child: Icon(Icons.arrow_back),
           ),

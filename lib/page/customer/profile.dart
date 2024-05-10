@@ -1,6 +1,8 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_ltdddoan/page/product/widget/view_full1image.dart';
+import 'package:flutter_ltdddoan/repositories/auth/login_repository.dart';
 import 'package:flutter_ltdddoan/repositories/auth/user_repository.dart';
 import 'package:get/get.dart';
 import '../../repositories/customer/saveprofile_repository.dart';
@@ -17,6 +19,8 @@ bool isHoTenEditable = false;
 bool isEmailEditable = false;
 bool isHoTenIconTapped = false;
 bool isEmailIconTapped = false;
+String? userId = UserRepository().getUserAuth()?.uid;
+
 String formatDate(DateTime dateTime) {
   return DateFormat('dd/MM/yyyy').format(dateTime);
 }
@@ -274,6 +278,32 @@ class _ParentWidgetState extends State<UserProfilePage> {
               ),
             ),
             SizedBox(height: 50),
+            Align(
+              alignment: Alignment.centerRight,
+              child: ElevatedButton(
+                onPressed: () async {
+                  User? currentUser = UserRepository().getUserAuth();
+                  if (currentUser != null) {
+                    await resetPassword(currentUser.email!, context);
+                  } else {
+                    // Xử lý trường hợp currentUser là null
+                  }
+                },
+                style: ElevatedButton.styleFrom(
+                  padding: EdgeInsets.symmetric(horizontal: 50, vertical: 16),
+                  minimumSize: Size(60, 50),
+                  backgroundColor: Color(0xFF6342E8),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.zero,
+                  ),
+                ),
+                child: Text(
+                  'Reset Mật Khẩu',
+                  style: TextStyle(color: Colors.white, fontSize: 14),
+                ),
+              ),
+            ),
+            SizedBox(height: 20),
             buildEditableTextField(
               controller: hoTenController,
               isEditable: isHoTenEditable,

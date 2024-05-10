@@ -390,3 +390,155 @@ Future<void> resetPassword(String email, BuildContext context) async {
     throw e;
   }
 }
+
+Future<void> resetPasswordWithUid(String uid, BuildContext context) async {
+  try {
+    await FirebaseAuth.instance.sendPasswordResetEmail(email: uid);
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.zero,
+          ),
+          backgroundColor: Colors.white,
+          content: Container(
+            height: MediaQuery.of(context).size.height * 0.05,
+            alignment: Alignment.center,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                Flexible(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                    child: Text(
+                      'Kiểm tra email để reset mật khẩu!',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                TextButton(
+                  style: ButtonStyle(
+                    shape: MaterialStateProperty.all(
+                      RoundedRectangleBorder(
+                        borderRadius: BorderRadius.zero,
+                      ),
+                    ),
+                    side: MaterialStateProperty.all(
+                      BorderSide(
+                        color: Color(0xFF6342E8),
+                        width: 1,
+                      ),
+                    ),
+                  ),
+                  child: Container(
+                    height: 30,
+                    width: 90,
+                    alignment: Alignment.center,
+                    child: Text(
+                      'Ok',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF6342E8),
+                      ),
+                    ),
+                  ),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                ),
+              ],
+            ),
+          ],
+        );
+      },
+    );
+  } catch (e) {
+    print('Lỗi khi gửi email đặt lại mật khẩu: $e');
+    // Hiển thị dialog lỗi
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.zero,
+          ),
+          backgroundColor: Colors.white,
+          content: Container(
+            height: MediaQuery.of(context).size.height * 0.05,
+            alignment: Alignment.center,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                Flexible(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                    child: Text(
+                      'Đã xảy ra lỗi khi gửi email đặt lại mật khẩu.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                TextButton(
+                  style: ButtonStyle(
+                    shape: MaterialStateProperty.all(
+                      RoundedRectangleBorder(
+                        borderRadius: BorderRadius.zero,
+                      ),
+                    ),
+                    side: MaterialStateProperty.all(
+                      BorderSide(
+                        color: Color(0xFF6342E8),
+                        width: 1,
+                      ),
+                    ),
+                  ),
+                  child: Container(
+                    height: 30,
+                    width: 90,
+                    alignment: Alignment.center,
+                    child: Text(
+                      'Ok',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF6342E8),
+                      ),
+                    ),
+                  ),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                ),
+              ],
+            ),
+          ],
+        );
+      },
+    );
+    throw e;
+  }
+}

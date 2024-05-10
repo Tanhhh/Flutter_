@@ -17,7 +17,7 @@ class OrderDetail {
     final data = doc.data() as Map<String, dynamic>;
     return OrderDetail(
       orderId: data['orderId'] ?? '',
-      productId: data['productId'] ?? '',
+      productId: data['availableSizeProductId'] ?? '',
       price: data['price'] ?? 0.0,
       quantity: data['quantity'] ?? 0,
     );
@@ -26,7 +26,7 @@ class OrderDetail {
   Map<String, dynamic> toMap() {
     return {
       'orderId': orderId,
-      'productId': productId,
+      'availableSizeProductId': productId,
       'price': price,
       'quantity': quantity,
     };

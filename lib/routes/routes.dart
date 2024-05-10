@@ -4,14 +4,16 @@ import 'package:flutter_ltdddoan/page/Payment/PaymentMethods.dart';
 import 'package:flutter_ltdddoan/page/Payment/Purchased.dart';
 import 'package:flutter_ltdddoan/page/auth/login/login.page.dart';
 import 'package:flutter_ltdddoan/page/auth/register/register.page.dart';
+import 'package:flutter_ltdddoan/page/home/widget/menu_bar.dart';
 import 'package:flutter_ltdddoan/page/favorite_product/favoriteproduct_page.dart';
 import 'package:flutter_ltdddoan/page/home/home.page.dart';
 import 'package:flutter_ltdddoan/page/order_customer/order_listitem.dart';
-import 'package:flutter_ltdddoan/page/product_category/add_productcategory.dart';
 import 'package:flutter_ltdddoan/page/splash/splash.page.dart';
 import 'package:flutter_ltdddoan/page/splash/splash_v1.page.dart';
 import '../page/customer/profile.dart';
 import '../page/Address/Addresses.dart';
+import '../page/discount/discount_page.dart';
+import '../page/order_customer/order_detail.dart';
 
 class Routes {
   Routes._();
@@ -28,6 +30,9 @@ class Routes {
   static const String address = '/address';
   static const String paymentMethod = '/paymentMethod';
   static const String success = '/success';
+  static const String discount = '/discount';
+  static const String menu = '/menu';
+  static const String orderDetail = '/orderDetail';
 
   static final routes = <String, WidgetBuilder>{
     splash: (_) => const SplashPage(),
@@ -36,12 +41,16 @@ class Routes {
     register: (_) => RegisterPage(),
     home: (_) => const HomePage(),
     profile: (_) => UserProfilePage(),
-    addproductcategory: (_) => AddProductCategoryPage(),
     favorite: (_) => FavoritePage(),
     myOrder: (_) => MyOrderScreen(),
     cart: (_) => Cartpage(),
     address: (_) => AddressScreen(),
     paymentMethod: (_) => PaymentMethodsScreen(),
     success: (_) => PurchasedScreen(),
+    discount: (_) => PromotionListPage(),
+    menu: (_) => ProfileScreen(),
+    orderDetail: (_) => OrderDetailPage(
+          orderId: 'maXfS7BtxFoaWSGI5QBH',
+        ),
   };
 }

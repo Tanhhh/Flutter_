@@ -3,6 +3,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_ltdddoan/page/Cart/provider/cart.dart';
 import 'package:flutter_ltdddoan/page/Payment/provider/get_paymentmethod.dart';
 import 'package:flutter_ltdddoan/page/Payment/provider/get_totalprice.dart';
+import 'package:flutter_ltdddoan/page/discount/provider/get_discount.dart';
 import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 import 'firebase_options.dart';
@@ -29,6 +30,9 @@ void main() async {
         ),
         ChangeNotifierProvider<TotalPriceProvider>(
           create: (_) => TotalPriceProvider(),
+        ),
+        ChangeNotifierProvider<SelectedDiscountProvider>(
+          create: (_) => SelectedDiscountProvider(),
         ),
       ],
       child: const Myapp(),

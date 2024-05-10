@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_ltdddoan/page/Address/provider/get_address.dart';
 import 'package:flutter_ltdddoan/page/Payment/bottom_totalPrice.dart';
 import 'package:flutter_ltdddoan/page/Payment/provider/get_paymentmethod.dart';
+import 'package:flutter_ltdddoan/page/discount/discount_page.dart';
+import 'package:flutter_ltdddoan/page/discount/provider/get_discount.dart';
 import 'package:provider/provider.dart';
 import '../Address/Addresses.dart';
 import '../Payment/PaymentMethods.dart';
@@ -63,11 +65,18 @@ class BottomModalPayment extends StatelessWidget {
 
             SizedBox(height: 20), // Khoảng cách giữa các phần tử
 
-            buildOptionRow(
-              'Khuyến mãi',
-              Icons.arrow_forward_ios,
-              () {},
-            ),
+            buildOptionRowDiscount('Khuyến mãi', Icons.arrow_forward_ios, () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => PromotionListPage(),
+                  settings: RouteSettings(name: '/discount'),
+                ),
+              );
+            },
+                showSelected: Provider.of<SelectedDiscountProvider>(context)
+                    .hasSelectedDiscount(),
+                context: context),
 
             Spacer(), // Đẩy nút "Tiếp tục" lên dưới cùng
 
@@ -160,7 +169,7 @@ class BottomModalPayment extends StatelessWidget {
             ', ' +
             selectedAddressProvider.selectedAddress!.address
         : 'Chọn';
-    const int MAXIMUM_TEXT_LENGTH = 60;
+    const int MAXIMUM_TEXT_LENGTH = 55;
     if (buttonText.length > MAXIMUM_TEXT_LENGTH) {
       // Cắt nội dung và thêm dấu ba chấm ở cuối
       buttonText = buttonText.substring(0, MAXIMUM_TEXT_LENGTH - 3) + '...';
@@ -257,12 +266,31 @@ class BottomModalPayment extends StatelessWidget {
     );
   }
 
-  Widget buildOptionRow(String title, IconData icon, VoidCallback onPressed) {
+  Widget buildOptionRowDiscount(
+      String title, IconData icon, VoidCallback onPressed,
+      {required BuildContext context,
+      bool showSelected = false,
+      bool showIcon = true}) {
+    final selectedDiscountProvider =
+        Provider.of<SelectedDiscountProvider>(context);
+    final bool hasSelectedPayment =
+        selectedDiscountProvider.hasSelectedDiscount();
+
+    String buttonText = showSelected && hasSelectedPayment
+        ? selectedDiscountProvider.selectedDiscount!.name
+        : 'Chọn';
+    const int MAXIMUM_TEXT_LENGTH = 70;
+    if (buttonText.length > MAXIMUM_TEXT_LENGTH) {
+      // Cắt nội dung và thêm dấu ba chấm ở cuối
+      buttonText = buttonText.substring(0, MAXIMUM_TEXT_LENGTH - 3) + '...';
+    }
+
+    Color textColor = Colors.blue;
+
     return InkWell(
       onTap: onPressed,
       child: Padding(
-        padding: const EdgeInsets.symmetric(
-            vertical: 8), // Tăng khoảng cách giữa các dòng
+        padding: const EdgeInsets.symmetric(vertical: 8),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -275,15 +303,16 @@ class BottomModalPayment extends StatelessWidget {
             Row(
               children: [
                 Text(
-                  'Chọn',
+                  buttonText,
                   style: TextStyle(
-                    color: Colors.blue,
+                    color: textColor,
                   ),
                 ),
-                Icon(
-                  icon,
-                  color: Colors.blue,
-                ),
+                if (showIcon && !showSelected)
+                  Icon(
+                    icon,
+                    color: Colors.blue,
+                  ),
               ],
             ),
           ],

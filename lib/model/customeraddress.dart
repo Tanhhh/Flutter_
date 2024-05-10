@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 class CustomerAddress {
   final String? customerAddressId;
   final String name;
@@ -38,6 +40,20 @@ class CustomerAddress {
       createDate: createDate ?? this.createDate,
       updatedDate: updatedDate ?? this.updatedDate,
       customerId: customerId ?? this.customerId,
+    );
+  }
+
+  factory CustomerAddress.fromDocument(DocumentSnapshot doc) {
+    Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+    return CustomerAddress(
+      customerAddressId: doc.id,
+      name: data['name'],
+      address: data['address'],
+      addressNote: data['addressNote'],
+      createDate: data['createDate'].toDate(),
+      updatedDate: data['updatedDate'].toDate(),
+      customerId: data['customerId'],
+      phone: data['phone'],
     );
   }
 }

@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_ltdddoan/model/order_model.dart';
+import 'package:flutter_ltdddoan/page/order_customer/order_detail.dart';
+import 'package:flutter_ltdddoan/repositories/order/order_repositoy.dart';
 
 class PurchasedScreen extends StatefulWidget {
   const PurchasedScreen({Key? key}) : super(key: key);
@@ -58,8 +61,19 @@ class _PurchasedScreenState extends State<PurchasedScreen> {
               ),
               Spacer(), // Thêm một khoảng cách linh hoạt giữa các widget
               ElevatedButton(
-                onPressed: () {
-                  // Xử lý khi nút được nhấn
+                onPressed: () async {
+                  OrderRepository orderRepo = OrderRepository();
+                  OrderModel? latestOrder = await orderRepo.getLatestOrder();
+                  if (latestOrder != null) {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => OrderDetailPage(
+                          orderId: latestOrder.orderId!,
+                        ),
+                      ),
+                    );
+                  }
                 },
                 child: Padding(
                   padding: EdgeInsets.symmetric(vertical: 20.0),

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_ltdddoan/page/product/widget/view_full1image.dart';
-import '../home/home.page.dart';
 import '../../repositories/customer/saveprofile_repository.dart';
 import 'package:intl/intl.dart';
 import 'upload_avt.dart';
@@ -35,15 +34,16 @@ class _ParentWidgetState extends State<UserProfilePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Thông tin cá nhân'),
+        title: Text('Thông tin cá nhân',
+            style: TextStyle(fontWeight: FontWeight.w700)),
         centerTitle: true,
         backgroundColor: Colors.white30,
         leading: IconButton(
           onPressed: () {
-            Navigator.pushReplacementNamed(context, '/home');
+            Navigator.pushReplacementNamed(context, '/menu');
           },
           icon: Icon(Icons.arrow_back),
-          color: Color(0xFF4C54A5),
+          color: Colors.black,
         ),
       ),
       body: SingleChildScrollView(

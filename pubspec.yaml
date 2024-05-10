@@ -29,6 +29,8 @@ dependencies:
   dvhcvn: ^2.0.20240501
   get: ^4.6.6
   another_flushbar: ^1.12.30
+  flutter_svg: ^2.0.10+1
+  cached_network_image: ^3.3.1
 
 
 dev_dependencies:
@@ -41,3 +43,4 @@ flutter:
   assets:
     - assets/files/
     - assets/images/
+    - assets/icons/

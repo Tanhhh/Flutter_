@@ -1,14 +1,12 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_ltdddoan/model/cart_model.dart';
 import 'package:flutter_ltdddoan/model/order_model.dart';
 import 'package:flutter_ltdddoan/model/orderdetail_model.dart';
 import 'package:flutter_ltdddoan/page/Address/provider/get_address.dart';
 import 'package:flutter_ltdddoan/page/Cart/provider/cart.dart';
-import 'package:flutter_ltdddoan/page/Payment/Purchased.dart';
 import 'package:flutter_ltdddoan/page/Payment/provider/get_paymentmethod.dart';
 import 'package:flutter_ltdddoan/page/Payment/provider/get_totalprice.dart';
-import 'package:flutter_ltdddoan/repositories/auth/user_repository.dart';
+import 'package:flutter_ltdddoan/page/discount/provider/get_discount.dart';
 import 'package:flutter_ltdddoan/repositories/order/order_repositoy.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -26,11 +24,18 @@ class BottomModalTotalPrice extends StatelessWidget {
     double totalPrice = cart.getTotalPrice();
     final selectedAddressProvider =
         Provider.of<SelectedAddressProvider>(context);
+    final selectedDiscountProvider =
+        Provider.of<SelectedDiscountProvider>(context);
+
     double ship = 0;
 
     ship = cart.calculateShippingFee(
         selectedAddressProvider.selectedAddress?.address ?? '');
     double discount = 0;
+    if (selectedDiscountProvider.hasSelectedDiscount()) {
+      discount =
+          totalPrice * selectedDiscountProvider.selectedDiscount!.value / 100;
+    }
     double totalpricefinal = totalPrice + ship - discount;
 
     // Cập nhật giá trị tổng tiền vào TotalPriceProvider
@@ -79,22 +84,27 @@ class BottomModalTotalPrice extends StatelessWidget {
                 try {
                   OrderRepository orderRepo = OrderRepository();
 
-                  User? currentUser = UserRepository().getUserAuth();
                   if (selectedPaymentProvider.selectedPayment?.name != 'cod') {
                     OrderModel order = OrderModel(
                         paymentMethodId: selectedPaymentProvider
                             .selectedPayment!.paymentMethodId,
                         totalPayment: totalpricefinal,
-                        customerId: currentUser!.uid,
-                        isPay: true);
+                        customerAddressId: selectedAddressProvider
+                            .selectedAddress!.customerAddressId,
+                        isPay: true,
+                        discountId: selectedDiscountProvider
+                            .selectedDiscount?.discountId);
                     await orderRepo.addOrder(order);
                   } else {
                     OrderModel order = OrderModel(
                         paymentMethodId: selectedPaymentProvider
                             .selectedPayment!.paymentMethodId,
                         totalPayment: totalpricefinal,
-                        customerId: currentUser!.uid,
-                        isPay: false);
+                        customerAddressId: selectedAddressProvider
+                            .selectedAddress!.customerAddressId,
+                        isPay: false,
+                        discountId: selectedDiscountProvider
+                            .selectedDiscount?.discountId);
                     await orderRepo.addOrder(order);
                   }
 
@@ -103,19 +113,27 @@ class BottomModalTotalPrice extends StatelessWidget {
                   for (Cart item in cart.selectedItems) {
                     String productId =
                         await cart.getProductIdByName(item.productName);
-                    if (latestOrder != null) {
-                      String latestOrderId = latestOrder.orderId!;
-                      OrderDetail orderDetail = OrderDetail(
-                        orderId: latestOrderId,
-                        productId: productId,
-                        price: item.price,
-                        quantity: item.quantity,
-                      );
+                    String? sizeId = await orderRepo
+                        .findSizeProductIdBySizeName(item.sizeName);
+                    List availabelIdList = await orderRepo
+                        .findAvailableSizeProductIds(productId, sizeId!);
 
-                      await orderRepo.addOrderDetail(orderDetail);
+                    if (latestOrder != null) {
+                      for (String availabelId in availabelIdList) {
+                        String latestOrderId = latestOrder.orderId!;
+                        OrderDetail orderDetail = OrderDetail(
+                          orderId: latestOrderId,
+                          productId: availabelId,
+                          price: item.price,
+                          quantity: item.quantity,
+                        );
+
+                        await orderRepo.addOrderDetail(orderDetail);
+                      }
                     }
                   }
-
+                  Provider.of<CartRepository>(context, listen: false)
+                      .clearSelectedItemsInCart();
                   Navigator.pushReplacementNamed(context, '/success');
                 } catch (e) {}
               },

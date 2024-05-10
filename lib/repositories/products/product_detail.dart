@@ -8,8 +8,6 @@ class ProductRepository {
       FirebaseFirestore.instance.collection('products');
   final CollectionReference _availableSizeProductCollection =
       FirebaseFirestore.instance.collection('availablesizeproduct');
-  final CollectionReference _sizeproductCollection =
-      FirebaseFirestore.instance.collection('availablesizeproduct');
 
   Future<Product?> getProductById(String productId) async {
     try {

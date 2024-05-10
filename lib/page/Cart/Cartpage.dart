@@ -58,8 +58,8 @@ class Cartpage extends StatelessWidget {
           if (cart.cartItems.isEmpty) {
             return Center(
               child: Text(
-                'Không có sản phẩm trong giỏ hàng',
-                style: TextStyle(fontSize: 18),
+                'Chưa có sản phẩm trong giỏ hàng',
+                style: TextStyle(fontSize: 16),
               ),
             );
           } else {

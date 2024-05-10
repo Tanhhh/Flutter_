@@ -16,17 +16,19 @@ class _PaymentMethodsScreenState extends State<PaymentMethodsScreen> {
       []; // Danh sách các phương thức thanh toán
   int? selectedMethodIndex;
   PaymentMethod? selectedMethod; // Biến tạm lưu method được chọn
+  PaymentMethodRepository repository = PaymentMethodRepository();
+  String? img;
+  bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    loadPaymentMethods(); // Load danh sách các phương thức thanh toán khi màn hình được khởi tạo
+    loadPaymentMethods();
   }
 
   void loadPaymentMethods() async {
-    PaymentMethodRepository repository = PaymentMethodRepository();
+    // Load danh sách các phương thức thanh toán khi màn hình được khởi tạo
     paymentMethods = await repository.getPaymentMethods();
-
     if (Provider.of<SelectedPaymentProvider>(context, listen: false)
         .hasSelectedPayment()) {
       selectedMethod =
@@ -36,7 +38,9 @@ class _PaymentMethodsScreenState extends State<PaymentMethodsScreen> {
           .indexWhere((element) => element.name == selectedMethod!.name);
     }
 
-    setState(() {});
+    setState(() {
+      _isLoading = false; // Kết thúc quá trình tải
+    });
   }
 
   void handleMethodSelection(int index) {
@@ -59,7 +63,8 @@ class _PaymentMethodsScreenState extends State<PaymentMethodsScreen> {
   @override
   Widget build(BuildContext context) {
     final leadingWidth = MediaQuery.of(context).size.width / 3;
-    final iconWidth = 24.0; // Kích thước của icon
+    final iconWidth = 24.0;
+
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
@@ -73,82 +78,102 @@ class _PaymentMethodsScreenState extends State<PaymentMethodsScreen> {
                 Navigator.of(context).pop();
               },
               icon: Icon(Icons.arrow_back),
-              label: SizedBox.shrink(), // Ẩn chữ
+              label: SizedBox.shrink(),
               style: ElevatedButton.styleFrom(
-                elevation: 0, // Không hiển thị shadow
-                backgroundColor: Colors.transparent, // Màu nền trong suốt
-                foregroundColor: Colors.black, // Màu chữ
+                elevation: 0,
+                backgroundColor: Colors.transparent,
+                foregroundColor: Colors.black,
               ),
             ),
           ],
         ),
         flexibleSpace: FlexibleSpaceBar(
-          centerTitle: true, // Canh giữa tiêu đề văn bản
+          centerTitle: true,
           title: Text(
             'Phương thức thanh toán',
             textAlign: TextAlign.center,
             style: TextStyle(
-              color: Colors.black, // Màu chữ
+              color: Colors.black,
             ),
           ),
         ),
       ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: EdgeInsets.all(24), //padding
-          child: Column(
-            children: paymentMethods.map((paymentMethod) {
-              int index = paymentMethods.indexOf(paymentMethod);
-              return GestureDetector(
-                onTap: () {
-                  handleMethodSelection(index);
-                },
-                child: Container(
-                  padding: EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: selectedMethodIndex == index
-                        ? Colors.grey.withOpacity(0.3)
-                        : null,
-                    borderRadius: BorderRadius.circular(10),
-                    border: Border.all(
-                      color: selectedMethodIndex == index
-                          ? Colors.blue
-                          : Colors.grey.withOpacity(0.5),
-                    ),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Row(
-                        children: [
-                          Image.asset(
-                            'assets/images/${paymentMethod.name.toLowerCase()}Icon.png',
-                            width: 48,
-                            height: 48,
-                          ),
-                          SizedBox(width: 16),
-                          Text(
-                            paymentMethod.description,
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
+      body: _isLoading
+          ? Center(
+              child: CircularProgressIndicator(), // Hiển thị biểu tượng loading
+            )
+          : SingleChildScrollView(
+              child: Padding(
+                padding: EdgeInsets.all(24),
+                child: Column(
+                  children: paymentMethods.map((paymentMethod) {
+                    int index = paymentMethods.indexOf(paymentMethod);
+                    return FutureBuilder<String?>(
+                      future: repository
+                          .getImageUrl(paymentMethod.paymentMethodId!),
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return CircularProgressIndicator();
+                        } else if (snapshot.hasError) {
+                          return Text('Error: ${snapshot.error}');
+                        } else {
+                          img = snapshot.data;
+                          return GestureDetector(
+                            onTap: () {
+                              handleMethodSelection(index);
+                            },
+                            child: Container(
+                              margin: EdgeInsets.only(bottom: 12),
+                              padding: EdgeInsets.all(16),
+                              decoration: BoxDecoration(
+                                color: selectedMethodIndex == index
+                                    ? Colors.green.withOpacity(0.3)
+                                    : null,
+                                borderRadius: BorderRadius.circular(10),
+                                border: Border.all(
+                                  color: selectedMethodIndex == index
+                                      ? Colors.blue
+                                      : Colors.grey.withOpacity(0.5),
+                                ),
+                              ),
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Row(
+                                    children: [
+                                      Image.network(
+                                        img ?? '',
+                                        width: 48,
+                                        height: 48,
+                                      ),
+                                      SizedBox(width: 16),
+                                      Text(
+                                        paymentMethod.description,
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  if (selectedMethodIndex == index)
+                                    Icon(
+                                      Icons.check_circle,
+                                      color: Colors.green,
+                                    ),
+                                ],
+                              ),
                             ),
-                          ),
-                        ],
-                      ),
-                      if (selectedMethodIndex == index)
-                        Icon(
-                          Icons.check_circle,
-                          color: Colors.green,
-                        ),
-                    ],
-                  ),
+                          );
+                        }
+                      },
+                    );
+                  }).toList(),
                 ),
-              );
-            }).toList(),
-          ),
-        ),
-      ),
+              ),
+            ),
     );
   }
 }

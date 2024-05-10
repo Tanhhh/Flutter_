@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_ltdddoan/page/Cart/provider/cart.dart';
+import 'package:flutter_ltdddoan/page/discount/provider/get_discount.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../Payment/bottom_modal_payment.dart';
@@ -80,6 +81,10 @@ class CartBottomBar extends StatelessWidget {
                       context: context,
                       isScrollControlled: true,
                       builder: (BuildContext context) {
+                        // Trước khi hiển thị BottomModalPayment, hãy reset SelectedDiscountProvider
+                        Provider.of<SelectedDiscountProvider>(context,
+                                listen: false)
+                            .resetSelectedDiscount();
                         return SingleChildScrollView(
                           child: Container(
                             height: MediaQuery.of(context).size.height * 0.5,

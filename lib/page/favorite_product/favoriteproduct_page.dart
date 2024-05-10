@@ -96,7 +96,7 @@ class _FavoritePageState extends State<FavoritePage> {
                   )
                 : Center(
                     child: Text(
-                      "Chưa có sản phẩm nào trong danh sách yêu thích.",
+                      "Chưa có sản phẩm nào trong danh sách yêu thích",
                       style: TextStyle(fontSize: 16),
                     ),
                   ),

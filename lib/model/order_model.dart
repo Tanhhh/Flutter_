@@ -12,9 +12,13 @@ class OrderModel {
   final String? status;
   final double totalPayment;
   final DateTime? createDate;
-  final DateTime? updatedDate;
+  final DateTime? confirmDate;
+  final DateTime? shipDate;
+  final DateTime? successDate;
+  final DateTime? cancelDate;
+  final DateTime? returnDate;
   final String? paymentMethodId;
-  final String customerId;
+  final String? customerAddressId;
   final String? userId;
   final String? discountId;
 
@@ -30,15 +34,37 @@ class OrderModel {
     this.status,
     required this.totalPayment,
     this.createDate,
-    this.updatedDate,
+    this.confirmDate,
+    this.cancelDate,
+    this.returnDate,
+    this.successDate,
+    this.shipDate,
     this.paymentMethodId,
-    required this.customerId,
+    required this.customerAddressId,
     this.userId,
     this.discountId,
   });
 
   factory OrderModel.fromFirestore(DocumentSnapshot doc) {
     final data = doc.data() as Map<String, dynamic>;
+
+    // Kiểm tra và lấy giá trị cho các trường ngày tháng
+    DateTime? shipDate = data['shipDate'] != null
+        ? (data['shipDate'] as Timestamp).toDate()
+        : null;
+    DateTime? successDate = data['successDate'] != null
+        ? (data['successDate'] as Timestamp).toDate()
+        : null;
+    DateTime? cancelDate = data['cancelDate'] != null
+        ? (data['cancelDate'] as Timestamp).toDate()
+        : null;
+    DateTime? returnDate = data['returnDate'] != null
+        ? (data['returnDate'] as Timestamp).toDate()
+        : null;
+    DateTime? confirmDate = data['confirmDate'] != null
+        ? (data['confirmDate'] as Timestamp).toDate()
+        : null;
+
     return OrderModel(
       orderId: doc.id,
       note: data['note'] ?? '',
@@ -51,9 +77,13 @@ class OrderModel {
       status: data['status'] ?? '',
       totalPayment: data['totalPayment'] ?? 0.0,
       createDate: (data['createDate'] as Timestamp).toDate(),
-      updatedDate: (data['updatedDate'] as Timestamp).toDate(),
+      confirmDate: confirmDate,
+      shipDate: shipDate,
+      successDate: successDate,
+      cancelDate: cancelDate,
+      returnDate: returnDate,
       paymentMethodId: data['paymentMethodId'] ?? '',
-      customerId: data['customerId'] ?? '',
+      customerAddressId: data['customerAddressId'] ?? '',
       userId: data['userId'] ?? '',
       discountId: data['discountId'] ?? '',
     );
@@ -71,11 +101,15 @@ class OrderModel {
       'status': status,
       'totalPayment': totalPayment,
       'createDate': createDate,
-      'updatedDate': updatedDate,
+      'confirmDate': confirmDate,
       'paymentMethodId': paymentMethodId,
-      'customerId': customerId,
+      'customerAddressId': customerAddressId,
       'userId': userId,
       'discountId': discountId,
+      'shipDate': shipDate,
+      'successDate': successDate,
+      'cancelDate': cancelDate,
+      'returnDate': returnDate,
     };
   }
 }

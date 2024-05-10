@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 class Discount {
   final String? discountId;
   final String name;
@@ -24,4 +26,22 @@ class Discount {
     required this.quantity,
     required this.price,
   });
+
+  // Phương thức tạo đối tượng Discount từ DocumentSnapshot
+  factory Discount.fromDocument(DocumentSnapshot doc) {
+    Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+    return Discount(
+      discountId: doc.id,
+      name: data['name'],
+      isActive: data['isActive'],
+      createdBy: data['createdBy'],
+      createDate: data['createDate'].toDate(),
+      updatedDate: data['updatedDate'].toDate(),
+      updatedBy: data['updatedBy'],
+      description: data['description'],
+      value: data['value'].toDouble(),
+      quantity: data['quantity'],
+      price: data['price'].toDouble(),
+    );
+  }
 }

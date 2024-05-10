@@ -308,4 +308,14 @@ class CartRepository extends ChangeNotifier {
     _selectedItems = [];
     notifyListeners();
   }
+
+  void clearSelectedItemsInCart() {
+    for (var selectedItem in _selectedItems) {
+      _cartItems.removeWhere((cartItem) =>
+          cartItem.productName == selectedItem.productName &&
+          cartItem.sizeName == selectedItem.sizeName);
+    }
+    _selectedItems.clear();
+    notifyListeners();
+  }
 }

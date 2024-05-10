@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_ltdddoan/gen/assets.gen.dart';
 import 'package:flutter_ltdddoan/page/Cart/provider/cart.dart';
-import 'package:flutter_ltdddoan/page/home/widget/icon.widget.dart';
 import 'package:flutter_ltdddoan/page/home/widget/menu_bar.dart';
+import 'package:flutter_ltdddoan/page/home/widget/icon.widget.dart';
 import 'package:provider/provider.dart';
-import '../../Cart/Cartpage.dart';
 import '../../search/SearchItem.dart';
 
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
@@ -27,8 +26,8 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     final itemCount = cartRepository.cartItems.length;
 
     return AppBar(
-      leadingWidth: 100,
-      leading: const Padding(
+      automaticallyImplyLeading: false,
+      title: Padding(
         padding: EdgeInsets.only(left: 15),
         child: Text(
           "Geeta.",
@@ -90,7 +89,6 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                 onPressed: () {
                   showGeneralDialog(
                     context: context,
-                    barrierDismissible: true,
                     barrierLabel: MaterialLocalizations.of(context)
                         .modalBarrierDismissLabel,
                     barrierColor: Colors.black.withOpacity(0.5),
@@ -100,7 +98,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                         Animation<double> secondaryAnimation) {
                       return Align(
                         alignment: Alignment.centerRight,
-                        child: MenuBarRight(), // Hiển thị menu bar tùy chỉnh
+                        child: ProfileScreen(),
                       );
                     },
                     transitionBuilder: (BuildContext context,
